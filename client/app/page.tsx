@@ -42,13 +42,13 @@ export default function StartupSprintLanding() {
                 <img src="https://i.pinimg.com/1200x/23/9e/0d/239e0dd769817cd9c4ec3caaa01fd191.jpg" alt="" className="rounded-[10px] w-8 h-8 object-cover" />
             </div>
           </div>
-          <span className="text-gray-100/90 font-light leading-relaxed text-base">2.4K scouts ready to discover</span>
+          <span className="text-gray-100/90 font-light leading-relaxed text-base">2.4K scouts ready to discover opportunities</span>
         </div>
 
         {/* Main Heading */}
         <div className="text-center mb-8 ">
-          <h1 className="text-5xl md:text-8xl font-semibold tracking-tight text-white mb-2">Bet on What's Next</h1>
-          <h2 className="text-5xl md:text-8xl font-semibold tracking-tight text-white/80">Monetize the Future</h2>
+          <h1 className="text-5xl md:text-8xl font-semibold tracking-tight text-white mb-2">Spot the Future.</h1>
+          <h2 className="text-5xl md:text-8xl font-semibold tracking-tight text-white/80">Stake. Chain. Earn.</h2>
         </div>
 
         {/* Subtext */}
@@ -75,7 +75,7 @@ export default function StartupSprintLanding() {
     type="submit"
     className="absolute right-1 top-1 bottom-1 bg-white text-black hover:bg-gray-200 rounded-3xl px-6 font-medium transition-colors"
   >
-    Start Scouting
+    Start Discovering
   </button>
 </form>
 
