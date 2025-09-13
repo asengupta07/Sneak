@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 
 interface NavbarProps {
   variant?: 'home' | 'technical'
@@ -11,7 +12,8 @@ export default function Navbar({ variant = 'home', currentPage }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const homeNavItems = [
-    { href: "/how-it-works", label: "How it Works" },
+    // { href: "/how-it-works", label: "How it Works" },
+    { href: "/whitepaper", label: "Whitepaper" },
     { href: "#markets", label: "Markets" },
     { href: "#privacy", label: "Privacy" },
     { href: "#contact", label: "Contact" }
@@ -19,9 +21,9 @@ export default function Navbar({ variant = 'home', currentPage }: NavbarProps) {
 
   const technicalNavItems = [
     { href: "/", label: "Home" },
-    { href: "#abstract", label: "Technical Paper" },
-    { href: "#markets", label: "Markets" },
-    { href: "#privacy", label: "Privacy" }
+    // { href: "/how-it-works", label: "How It Works" },
+    { href: "/whitepaper", label: "Whitepaper" },
+    { href: "#markets", label: "Markets" }
   ]
 
   const navItems = variant === 'home' ? homeNavItems : technicalNavItems
@@ -29,7 +31,9 @@ export default function Navbar({ variant = 'home', currentPage }: NavbarProps) {
   return (
     <nav className="flex items-center justify-between px-6 pt-7 relative max-w-7xl mx-auto z-10">
       <div className="text-4xl font-sans">
+        <Link href="/">
         <span className="font-serif italic">Sneak</span>
+        </Link>
       </div>
 
       <div className="hidden md:flex items-center space-x-8">
