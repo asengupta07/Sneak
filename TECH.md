@@ -218,34 +218,31 @@ function resolve_chain(chain):
             chain[i].status = 'LOSE'
             zero_out(chain[i:])
             break
+```
 
 ### 5.3 Liquidation Monitoring & Execution
 
 ```
-
-// alpha*open is the per-link allocation factor (e.g., 0.8)
-// mcr = 1.0 enforces V*{i-1} >= A*i; tau is hysteresis (e.g., 0.01)
+// alpha_open is the per-link allocation factor (e.g., 0.8)
+// mcr = 1.0 enforces V_{i-1} >= A_i; tau is hysteresis (e.g., 0.01)
 function monitor_and_liquidate(chain, alpha_open=0.8, mcr=1.0, tau=0.01):
-// Precondition: chain[0] is funded; each chain[i>0] stores allocated_from_prev = A_i
-for i from 1 to len(chain)-1:
-collateral_value = mark_value(chain[i-1].opportunity, chain[i-1].side)
-allocated = chain[i].allocated_from_prev // A_i fixed at open
-threshold = allocated * mcr \_ (1 - tau)
-if collateral_value < threshold:
-liquidate_downstream(chain, start_index=i)
-break
+    // Precondition: chain[0] is funded; each chain[i>0] stores allocated_from_prev = A_i
+    for i from 1 to len(chain)-1:
+        collateral_value = mark_value(chain[i-1].opportunity, chain[i-1].side)
+        allocated = chain[i].allocated_from_prev  // A_i fixed at open
+        threshold = allocated * mcr * (1 - tau)
+        if collateral_value < threshold:
+            liquidate_downstream(chain, start_index=i)
+            break
 
 function liquidate_downstream(chain, start_index):
-// Prevent new downstream links during unwind
-freeze_new_downstream(chain)
-for j from len(chain)-1 down to start_index:
-unwind_position(chain[j]) // close into base via AMM/TWAP
-apply_liquidation_penalty(chain[j])
-chain[j].status = 'LIQUIDATED'
-unfreeze_prefix(chain, prefix_end=start_index-1)
-
-```
-
+    // Prevent new downstream links during unwind
+    freeze_new_downstream(chain)
+    for j from len(chain)-1 down to start_index:
+        unwind_position(chain[j])  // close into base via AMM/TWAP
+        apply_liquidation_penalty(chain[j])
+        chain[j].status = 'LIQUIDATED'
+    unfreeze_prefix(chain, prefix_end=start_index-1)
 ```
 
 ---
