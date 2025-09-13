@@ -10,6 +10,8 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@types/react-katex": "^3.0.4",
+    "connectkit": "^1.9.1",
     "katex": "^0.16.22",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
