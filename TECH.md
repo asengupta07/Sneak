@@ -127,12 +127,23 @@ Definitions:
 - Let \(\alpha \in (0,1)\) be the allocation factor (e.g., \(\alpha = 0.8\)). When a link \(i\) is opened, at most an \(\alpha\) fraction of the current mark value of the previous link \(i-1\) may be allocated to it.
 - Let \(V\_{i}(t)\) be the current USD mark value of link \(i\) at time \(t\) (based on AMM mid or oracle TWAP).
 - Let \(A*{i}\) be the fixed amount that was actually allocated from link \(i-1\) to open link \(i\) at creation time: \(A_i = \alpha \cdot V*{i-1}(t\_{\text{open}})\).
-- Maintenance requirement (per link): \(V*{i-1}(t) \ge A_i\). Initial over-collateralization headroom is \((1-\alpha)\cdot V*{i-1}(t\_{\text{open}})\).
+- Initial over-collateralization headroom is \((1-\alpha)\cdot V*{i-1}(t*{\text{open}})\).
+
+Debt and interest:
+
+- Let \(\text{LTV} \in (0,1)\) be the max loan-to-value used for allocation (often \(\text{LTV}=\alpha\); examples below use 60%).
+- Let \(r\) be a per-link interest rate and \(F\) an optional fixed fee per downstream link. The debt to repay for link \(i\) is:
+
+\[
+D_i = A_i \cdot (1 + r) + F.
+\]
+
+- Maintenance requirement (per link): \(V\_{i-1}(t) \ge D_i\) (with hysteresis \(\tau\)).
 
 Trigger:
 
-- If for some smallest index \(j\ge 2\), \(V\_{j-1}(t) < A_j\), then link \(j\) and all downstream links \(j..k\) become under-collateralized and must be liquidated.
-- To avoid flip-flop near the boundary, we use hysteresis \(\tau\) (e.g., 1%). Liquidation triggers when \(V*{j-1}(t) < (1-\tau)\cdot A_j\) and only clears when \(V*{j-1}(t) > (1+\tau)\cdot A_j\).
+- If for some smallest index \(j\ge 2\), \(V\_{j-1}(t) < D_j\), then link \(j\) and all downstream links \(j..k\) become under-collateralized and must be liquidated.
+- To avoid flip-flop near the boundary, we use hysteresis \(\tau\) (e.g., 1%). Liquidation triggers when \(V*{j-1}(t) < (1-\tau)\cdot D_j\) and only clears when \(V*{j-1}(t) > (1+\tau)\cdot D_j\).
 
 Process (single chain):
 
@@ -152,6 +163,23 @@ Notes:
 - Collateral marks should use manipulation-resistant prices (e.g., TWAPs) and may include per-opportunity haircuts.
 - Partial liquidation is optional: the protocol may either fully unwind \(j..k\) or reduce \(A*j\) until \(V*{j-1}\ge A_j\) again.
 - If a resolution event and a liquidation trigger occur in the same block, resolution is processed first; then collateralization is re-evaluated.
+
+#### 3.4.1 Numeric examples (policy: LTV = 60%, fixed fee \(F=\$5\) per downstream link)
+
+Example A — Two links, both win:
+
+- Start: deposit \$100 in \(O_1\) (link 1). With 60% LTV, allocate \(A_2 = \$60\) to \(O_2\) (link 2). Debt to repay: \(D_2 = A_2 + F = \$65\) (assuming \(r=0\)).
+- Suppose both links pay out for a total gross \$320. Net profit = \$320 − \$100 (initial) − \$65 (debt) = \$155.
+
+Example B — Two links, upstream falls to the debt boundary:
+
+- Start: \$100 in \(O_1\), \$60 allocated to \(O_2\), \(D_2=\$65\).
+- If \(V_1\) falls to \$65, liquidation triggers (post-hysteresis). The unwind repays \$65; user’s residual from link 1 is zero and downstream links are closed.
+
+Example C — Three links, chaining budget and sensitivity:
+
+- After opening link 2, suppose \(V_1=\$35\). With a fixed fee reserve \(F=\$5\), policy allows at most \~\$25 to chain again (illustrative cap). General budgeting for link 3 uses a policy function \(A_3 \le \min(\text{LTV}\cdot V_2, \text{policy\\\_cap})\).
+- With triple chaining, a small upstream drawdown (e.g., initial position dips to \$96) can violate \(V\_{i-1} < D_i\) on some downstream link and trigger full liquidation.
 
 ---
 
@@ -224,13 +252,14 @@ function resolve_chain(chain):
 
 ```
 // alpha_open is the per-link allocation factor (e.g., 0.8)
-// mcr = 1.0 enforces V_{i-1} >= A_i; tau is hysteresis (e.g., 0.01)
+// mcr = 1.0 enforces V_{i-1} >= D_i; tau is hysteresis (e.g., 0.01)
 function monitor_and_liquidate(chain, alpha_open=0.8, mcr=1.0, tau=0.01):
     // Precondition: chain[0] is funded; each chain[i>0] stores allocated_from_prev = A_i
     for i from 1 to len(chain)-1:
         collateral_value = mark_value(chain[i-1].opportunity, chain[i-1].side)
         allocated = chain[i].allocated_from_prev  // A_i fixed at open
-        threshold = allocated * mcr * (1 - tau)
+        debt = compute_debt(allocated)            // D_i = A_i*(1+r) + F
+        threshold = debt * mcr * (1 - tau)
         if collateral_value < threshold:
             liquidate_downstream(chain, start_index=i)
             break
@@ -243,6 +272,14 @@ function liquidate_downstream(chain, start_index):
         apply_liquidation_penalty(chain[j])
         chain[j].status = 'LIQUIDATED'
     unfreeze_prefix(chain, prefix_end=start_index-1)
+
+function compute_debt(allocated):
+    // Example policy: flat fee F and optional rate r
+    return allocated * (1 + interest_rate()) + flat_fee()
+
+function next_link_allocation(current_value):
+    // Example policy: LTV * current_value minus reserved fee buffer
+    return max(0, LTV() * current_value - flat_fee())
 ```
 
 ---
