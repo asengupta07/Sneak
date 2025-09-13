@@ -126,8 +126,8 @@ Definitions:
 
 - Let \(\alpha \in (0,1)\) be the allocation factor (e.g., \(\alpha = 0.8\)). When a link \(i\) is opened, at most an \(\alpha\) fraction of the current mark value of the previous link \(i-1\) may be allocated to it.
 - Let \(V\_{i}(t)\) be the current USD mark value of link \(i\) at time \(t\) (based on AMM mid or oracle TWAP).
-- Let \(A*{i}\) be the fixed amount that was actually allocated from link \(i-1\) to open link \(i\) at creation time: \(A_i = \alpha \cdot V*{i-1}(t\_\text{open})\).
-- Maintenance requirement (per link): \(V*{i-1}(t) \ge A_i\). Initial over-collateralization headroom is \((1-\alpha)\cdot V*{i-1}(t\_\text{open})\).
+- Let \(A*{i}\) be the fixed amount that was actually allocated from link \(i-1\) to open link \(i\) at creation time: \(A_i = \alpha \cdot V*{i-1}(t\_{\text{open}})\).
+- Maintenance requirement (per link): \(V*{i-1}(t) \ge A_i\). Initial over-collateralization headroom is \((1-\alpha)\cdot V*{i-1}(t\_{\text{open}})\).
 
 Trigger:
 
