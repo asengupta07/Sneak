@@ -1,103 +1,180 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState } from "react"
+// import { Instagram, Twitter, Linkedin, Menu, X } from "lucide-react"
+
+//uncomment the icons
+
+export default function StartupSprintLanding() {
+  const [email, setEmail] = useState("")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    // Handle email submission
+    console.log("Email submitted:", email)
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div
+      className="min-h-screen text-white relative overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/bg.png')" }}
+    >
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
+      {/* Navbar */}
+      <nav className="flex items-center justify-between px-6 pt-7 relative max-w-7xl mx-auto z-10">
+        <div className="text-4xl font-sans">
+          <span className="font-extralight">Startup</span>
+          <span className="font-serif italic">Sprint</span>
+        </div>
+
+        <div className="hidden md:flex items-center space-x-8">
+          <a href="#" className="text-gray-300/60 hover:text-white font-light transition-colors text-lg">
+            Features
           </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
+          <a href="#" className="text-gray-300/60 hover:text-white font-light transition-colors text-lg">
+            About
+          </a>
+          <a href="#" className="text-gray-300/60 hover:text-white font-light transition-colors text-lg">
+            Newsletter
+          </a>
+          <a href="#" className="text-gray-300/60 hover:text-white font-light transition-colors text-lg">
+            Contact
           </a>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+       
+       <button className="hidden md:block bg-white text-black hover:bg-gray-200 rounded-[20px] px-6 py-3 font-medium transition-colors">
+          Join The Waitlist
+        </button>
+
+        <button
+          className="md:hidden w-10 h-10 bg-black/80 backdrop-blur-sm border border-gray-700 rounded-full flex items-center justify-center hover:bg-gray-900/80 transition-colors"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {/* {isMobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />} */}
+        </button>
+      </nav>
+
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-20">
+          <div className="flex flex-col items-center justify-center min-h-screen space-y-8">
+            <a
+              href="#"
+              className="text-white text-2xl hover:text-gray-300 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Features
+            </a>
+            <a
+              href="#"
+              className="text-white text-2xl hover:text-gray-300 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              About
+            </a>
+            <a
+              href="#"
+              className="text-white text-2xl hover:text-gray-300 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Newsletter
+            </a>
+            <a
+              href="#"
+              className="text-white text-2xl hover:text-gray-300 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contact
+            </a>
+            <button
+              className="bg-white text-black hover:bg-gray-200 rounded-full px-8 py-3 font-medium transition-colors mt-8"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Join The Waitlist
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Hero Section */}
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 relative z-10">
+        {/* Waitlist Badge */}
+        <div className="flex items-center bg-white/10 rounded-[15px] px-4 py-[6px]  mb-3 mt-10">
+          <div className="flex -space-x-1 mr-5 -translate-x-2">
+            <div className="w-8 h-8 rounded-xl ">
+                <img src="https://i.pinimg.com/736x/0f/37/44/0f37449ce43858738a05f56e82ac6398.jpg" alt="" className="rounded-[10px] w-8 h-8 object-cover" />
+            </div>
+            <div className="w-8 h-8 rounded-xl  ">
+                <img src="https://i.pinimg.com/1200x/2a/0b/22/2a0b2216788c4e596c594d27dfae3139.jpg" alt="" className="rounded-[10px] w-8 h-8 object-cover" />
+            </div>
+            <div className="w-8 h-8 rounded-xl ">
+                <img src="https://i.pinimg.com/1200x/23/b6/31/23b631a3e21f6d88cfae17dd9269f67e.jpg" alt="" className="rounded-[10px] w-8 h-8 object-cover" />
+            </div>
+            <div className="w-8 h-8 rounded-xl  ">
+                <img src="https://i.pinimg.com/1200x/23/9e/0d/239e0dd769817cd9c4ec3caaa01fd191.jpg" alt="" className="rounded-[10px] w-8 h-8 object-cover" />
+            </div>
+          </div>
+          <span className="text-gray-100/90 font-light leading-relaxed text-base">2.4K currently on the waitlist</span>
+        </div>
+
+        {/* Main Heading */}
+        <div className="text-center mb-8 ">
+          <h1 className="text-5xl md:text-8xl font-semibold tracking-tight text-white mb-2">Building the Future</h1>
+          <h2 className="text-5xl md:text-8xl font-semibold tracking-tight text-white/80">One Startup at a Time.</h2>
+        </div>
+
+        {/* Subtext */}
+        <p className="text-white/50 text-lg md:text-2xl text-center tracking-tight max-w-2xl mb-12">
+          Be the first to know when we launch.
+          <br />
+          Join the waitlist and get exclusive early access.
+        </p>
+
+        {/* Email Signup */}
+<form
+  onSubmit={handleSubmit}
+  className="w-full max-w-md relative"
+>
+  <input
+    type="email"
+    placeholder="Enter Your Email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    className="bg-white/10 text-white placeholder-gray-400 rounded-3xl px-6 py-5 pr-32 focus:border-white focus:ring-white focus:outline-none w-full"
+    required
+  />
+  <button
+    type="submit"
+    className="absolute right-1 top-1 bottom-1 bg-white text-black hover:bg-gray-200 rounded-3xl px-6 font-medium transition-colors"
+  >
+    Join The Waitlist
+  </button>
+</form>
+
+
+        {/* Social Icons */}
+        <div className="flex items-center space-x-4 mt-8">
+          <a
+            href="#"
+            className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-gray-900/80 transition-colors"
+          >
+            <img src="https://i.postimg.cc/Qt4DwvDH/instagram-1.png" className="w-5 h-5" />
+          </a>
+          <a
+            href="#"
+            className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-gray-900/80 transition-colors"
+          >
+            <img src="https://i.postimg.cc/HLTCxTsr/twitter.png" className="w-5 h-5" />
+          </a>
+          <a
+            href="#"
+            className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-gray-900/80 transition-colors"
+          >
+            <img src="https://i.postimg.cc/wvv8XFNH/linkedin.png" className="w-5 h-5 " />
+          </a>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
