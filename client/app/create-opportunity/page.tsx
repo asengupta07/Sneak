@@ -1,23 +1,32 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Navbar from "../components/Navbar"
-import { Upload, X, Calendar, DollarSign, FileText, Image as ImageIcon, AlertCircle } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Navbar from "../components/Navbar";
+import {
+  Upload,
+  X,
+  Calendar,
+  DollarSign,
+  FileText,
+  Image as ImageIcon,
+  AlertCircle,
+} from "lucide-react";
+import { useCreateOpportunity as useCreateOpportunityWrite } from "../hooks/useSneakProtocolWrites";
 
 interface FormData {
-  title: string
-  description: string
-  resolutionCriteria: string
-  resolutionDate: string
-  initialLiquidity: string
-  category: string
-  images: File[]
-  banners: File[]
+  title: string;
+  description: string;
+  resolutionCriteria: string;
+  resolutionDate: string;
+  initialLiquidity: string;
+  category: string;
+  images: File[];
+  banners: File[];
 }
 
 export default function CreateOpportunity() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -26,10 +35,11 @@ export default function CreateOpportunity() {
     initialLiquidity: "",
     category: "",
     images: [],
-    banners: []
-  })
-  const [errors, setErrors] = useState<Partial<FormData>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+    banners: [],
+  });
+  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createOpportunityWrite = useCreateOpportunityWrite();
 
   const categories = [
     "Technology",
@@ -40,86 +50,98 @@ export default function CreateOpportunity() {
     "Science",
     "Business",
     "Crypto",
-    "Other"
-  ]
+    "Other",
+  ];
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }))
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }
+  };
 
-  const handleFileUpload = (field: 'images' | 'banners', files: FileList | null) => {
-    if (!files) return
-    
-    const newFiles = Array.from(files)
-    setFormData(prev => ({
-      ...prev,
-      [field]: [...prev[field], ...newFiles]
-    }))
-  }
+  const handleFileUpload = (
+    field: "images" | "banners",
+    files: FileList | null
+  ) => {
+    if (!files) return;
 
-  const removeFile = (field: 'images' | 'banners', index: number) => {
-    setFormData(prev => ({
+    const newFiles = Array.from(files);
+    setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
-    }))
-  }
+      [field]: [...prev[field], ...newFiles],
+    }));
+  };
+
+  const removeFile = (field: "images" | "banners", index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {}
+    const newErrors: Partial<FormData> = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = "Title is required"
+      newErrors.title = "Title is required";
     }
     if (!formData.description.trim()) {
-      newErrors.description = "Description is required"
+      newErrors.description = "Description is required";
     }
     if (!formData.resolutionCriteria.trim()) {
-      newErrors.resolutionCriteria = "Resolution criteria is required"
+      newErrors.resolutionCriteria = "Resolution criteria is required";
     }
     if (!formData.resolutionDate) {
-      newErrors.resolutionDate = "Resolution date is required"
+      newErrors.resolutionDate = "Resolution date is required";
     } else if (new Date(formData.resolutionDate) <= new Date()) {
-      newErrors.resolutionDate = "Resolution date must be in the future"
+      newErrors.resolutionDate = "Resolution date must be in the future";
     }
-    if (!formData.initialLiquidity || parseFloat(formData.initialLiquidity) <= 0) {
-      newErrors.initialLiquidity = "Initial liquidity must be greater than 0"
+    if (
+      !formData.initialLiquidity ||
+      parseFloat(formData.initialLiquidity) <= 0
+    ) {
+      newErrors.initialLiquidity = "Initial liquidity must be greater than 0";
     }
     if (!formData.category) {
-      newErrors.category = "Category is required"
+      newErrors.category = "Category is required";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setIsSubmitting(true)
-    
+    setIsSubmitting(true);
+
     try {
-      // TODO: Implement actual opportunity creation logic
-      console.log("Creating opportunity:", formData)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Redirect to success page or back to home
-      router.push("/")
+      const name = formData.title.trim();
+      const metadataUrl =
+        formData.images.length > 0
+          ? "ipfs://placeholder"
+          : "ipfs://placeholder";
+      const amountBaseUnits = BigInt(
+        Math.floor(parseFloat(formData.initialLiquidity) * 1_000_000)
+      );
+
+      await createOpportunityWrite(name, metadataUrl, amountBaseUnits, {
+        // wagmi options placeholder (e.g., onSuccess/onError) can be passed here
+      });
+
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Error creating opportunity:", error)
+      console.error("Error creating opportunity:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div
@@ -134,9 +156,12 @@ export default function CreateOpportunity() {
         <div className="bg-gray-900/50 border border-orange-500/20 rounded-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-orange-500 mb-4">Create New Opportunity</h1>
+            <h1 className="text-4xl font-bold text-orange-500 mb-4">
+              Create New Opportunity
+            </h1>
             <p className="text-lg text-gray-300">
-              Create a new opportunity market where users can speculate on binary outcomes
+              Create a new opportunity market where users can speculate on
+              binary outcomes
             </p>
           </div>
 
@@ -148,7 +173,7 @@ export default function CreateOpportunity() {
                 <FileText className="mr-3 text-orange-500" />
                 Basic Information
               </h2>
-              
+
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -175,7 +200,9 @@ export default function CreateOpportunity() {
                   </label>
                   <select
                     value={formData.category}
-                    onChange={(e) => handleInputChange("category", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("category", e.target.value)
+                    }
                     className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                   >
                     <option value="">Select a category</option>
@@ -200,7 +227,9 @@ export default function CreateOpportunity() {
                 </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   rows={4}
                   className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                   placeholder="Provide a detailed description of the opportunity..."
@@ -227,7 +256,9 @@ export default function CreateOpportunity() {
                 </label>
                 <textarea
                   value={formData.resolutionCriteria}
-                  onChange={(e) => handleInputChange("resolutionCriteria", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("resolutionCriteria", e.target.value)
+                  }
                   rows={3}
                   className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                   placeholder="Define clear, objective criteria for how this opportunity will be resolved..."
@@ -247,7 +278,9 @@ export default function CreateOpportunity() {
                 <input
                   type="datetime-local"
                   value={formData.resolutionDate}
-                  onChange={(e) => handleInputChange("resolutionDate", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("resolutionDate", e.target.value)
+                  }
                   className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                 />
                 {errors.resolutionDate && (
@@ -275,7 +308,9 @@ export default function CreateOpportunity() {
                   step="0.001"
                   min="0"
                   value={formData.initialLiquidity}
-                  onChange={(e) => handleInputChange("initialLiquidity", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("initialLiquidity", e.target.value)
+                  }
                   className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                   placeholder="0.1"
                 />
@@ -314,11 +349,15 @@ export default function CreateOpportunity() {
                   />
                   <label htmlFor="images-upload" className="cursor-pointer">
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-400">Click to upload images or drag and drop</p>
-                    <p className="text-sm text-gray-500 mt-1">PNG, JPG, GIF up to 10MB each</p>
+                    <p className="text-gray-400">
+                      Click to upload images or drag and drop
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      PNG, JPG, GIF up to 10MB each
+                    </p>
                   </label>
                 </div>
-                
+
                 {/* Display uploaded images */}
                 {formData.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -352,17 +391,23 @@ export default function CreateOpportunity() {
                     type="file"
                     multiple
                     accept="image/*"
-                    onChange={(e) => handleFileUpload("banners", e.target.files)}
+                    onChange={(e) =>
+                      handleFileUpload("banners", e.target.files)
+                    }
                     className="hidden"
                     id="banners-upload"
                   />
                   <label htmlFor="banners-upload" className="cursor-pointer">
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-400">Click to upload banners or drag and drop</p>
-                    <p className="text-sm text-gray-500 mt-1">PNG, JPG, GIF up to 10MB each</p>
+                    <p className="text-gray-400">
+                      Click to upload banners or drag and drop
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      PNG, JPG, GIF up to 10MB each
+                    </p>
                   </label>
                 </div>
-                
+
                 {/* Display uploaded banners */}
                 {formData.banners.length > 0 && (
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -408,5 +453,5 @@ export default function CreateOpportunity() {
         </div>
       </div>
     </div>
-  )
+  );
 }
