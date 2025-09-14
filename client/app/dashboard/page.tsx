@@ -275,7 +275,7 @@ export default function OpportunitiesDashboard() {
                 </div>
 
                 {/* Stats Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
                         <div className="flex items-center justify-between">
                             <div>
@@ -331,7 +331,7 @@ export default function OpportunitiesDashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
+                    {/* <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-400 text-sm">
@@ -345,18 +345,18 @@ export default function OpportunitiesDashboard() {
                                                 opp.totalYesTokens +
                                                     opp.totalNoTokens
                                             ) /
-                                                Math.pow(10, 18),
+                                                Math.pow(10, 6),
                                         0
                                     )}
                                 </p>
                             </div>
                             <Users className="w-8 h-8 text-orange-500" />
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Chains At Risk */}
-                <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
+                {/* <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-semibold text-white">
                             Chains At Risk
@@ -376,10 +376,10 @@ export default function OpportunitiesDashboard() {
                                     onLiquidate={liquidateChain}
                                 />
                             ))}
-                    </div> */}
-                </div>
+                    </div> 
+                </div> */}
                 {/* Chains At Risk */}
-                <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
+                {/* <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-semibold text-white">
                             Chains At Risk
@@ -401,8 +401,8 @@ export default function OpportunitiesDashboard() {
                                     />
                                 )
                             )}
-                    </div> */}
-                </div>
+                    </div> 
+                </div> */}
 
                 {/* Filters and Search */}
                 <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
