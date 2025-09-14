@@ -61,30 +61,29 @@ const config: any = {
       url: configVariable("AVALANCHE_RPC_URL"),
       accounts: [configVariable("AVALANCHE_PRIVATE_KEY")],
     },
+    // Snowtrace network for verification
+    snowtrace: {
+      type: "http",
+      chainType: "l1",
+      chainId: 43113,
+      url: 'https://api.avax-test.network/ext/bc/C/rpc',
+      accounts: [configVariable("FUJI_PRIVATE_KEY")]
+    },
   },
   etherscan: {
-    // Reuse a single SnowTrace API key for both mainnet and Fuji
     apiKey: {
-      snowtrace: "snowtrace"
+      fuji: 'verifyContract', // Use the same key as in the original command
     },
     customChains: [
       {
-        network: "avalanche",
-        chainId: 43114,
-        urls: {
-          apiURL: "https://api.snowtrace.io/api",
-          browserURL: "https://snowtrace.io",
-        },
-      },
-      {
-        network: "fuji",
+        network: 'fuji',
         chainId: 43113,
         urls: {
-          apiURL: "https://api.routescan.io/v2/network/testnet/evm/43113/etherscan",
-          browserURL: "https://avalanche.testnet.localhost:8080",
-        },
-      },
-    ],
+          apiURL: 'https://api.routescan.io/v2/network/testnet/evm/43113/etherscan',
+          browserURL: 'https://avalanche.testnet.localhost:8080'
+        }
+      }
+    ]
   },
 };
 
