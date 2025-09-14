@@ -24,37 +24,26 @@ import {
 } from "lucide-react";
 import { useGetOpportunity } from "../../hooks/useSneakProtocolReads";
 import {
-  useBuyTokens,
   useResolveOpportunity as useResolveOpportunityWrite,
   useClaimWinnings,
 } from "../../hooks/useSneakProtocolWrites";
+import useBuyTokens from "@/hooks/buyTokens";
 import { useAccount } from "wagmi";
 
 interface Opportunity {
   id: string;
-  title: string;
-  description: string;
-  category: string;
-  status: "active" | "resolved" | "pending" | "cancelled";
-  outcome?: "yes" | "no" | null;
-  resolutionCriteria: string;
-  resolutionDate: string;
-  initialLiquidity: number;
-  currentLiquidity: number;
-  yesPrice: number;
-  noPrice: number;
-  totalVolume: number;
-  participants: number;
-  images: string[];
-  banners: string[];
-  isCreator: boolean;
-  createdAt: string;
-  resolvedAt?: string;
-  creator: {
-    address: string;
-    name: string;
-    avatar: string;
-  };
+  name: string;
+  metadataUrl: string;
+  liquidityYes: number;
+  liquidityNo: number;
+  priceYes: number;
+  priceNo: number;
+  creator: string;
+  resolved: boolean;
+  outcome: boolean;
+  totalYesTokens: number;
+  totalNoTokens: number;
+  creationTime: number;
 }
 
 interface Position {
@@ -80,7 +69,7 @@ export default function OpportunityDetail() {
   const { address } = useAccount();
   const { data: onchainOpportunity, isLoading: isLoadingOpportunity } =
     useGetOpportunity(idAsBigInt);
-  const buyTokens = useBuyTokens();
+  const { createPositionChain } = useBuyTokens();
   const resolveOpportunityWrite = useResolveOpportunityWrite();
   const claimWinningsWrite = useClaimWinnings();
 
@@ -94,6 +83,8 @@ export default function OpportunityDetail() {
   const [tradingAmount, setTradingAmount] = useState("");
   const [tradingSide, setTradingSide] = useState<"yes" | "no">("yes");
   const [showTradingModal, setShowTradingModal] = useState(false);
+  const [ipfsMetadata, setIpfsMetadata] = useState<any>(null);
+  const [metadataLoading, setMetadataLoading] = useState(false);
 
   // Load opportunity from contract
   // Map onchain data into UI-friendly shape
@@ -101,44 +92,61 @@ export default function OpportunityDetail() {
     if (!onchainOpportunity) return null;
     try {
       const o: any = onchainOpportunity as any;
-      const liquidityYes = Number(o.liquidityYes ?? 0n) / 1_000_000;
-      const liquidityNo = Number(o.liquidityNo ?? 0n) / 1_000_000;
-      const yesPrice = Number(o.priceYes ?? 0n) / 1_000_000;
-      const noPrice = Number(o.priceNo ?? 0n) / 1_000_000;
+      
+      // Console log all raw values for debugging
+      console.log("Raw onchain opportunity data:", o);
+      console.log("Raw liquidityYes (Wei):", o.liquidityYes);
+      console.log("Raw liquidityNo (Wei):", o.liquidityNo);
+      console.log("Raw priceYes (Wei):", o.priceYes);
+      console.log("Raw priceNo (Wei):", o.priceNo);
+      console.log("Raw totalYesTokens (Wei):", o.totalYesTokens);
+      console.log("Raw totalNoTokens (Wei):", o.totalNoTokens);
+      console.log("Raw creationTime (seconds):", o.creationTime);
+      
+      // Convert from Wei to proper units
+      // Liquidity values are in 18 decimals (like ETH/Wei)
+      const liquidityYes = Number(o.liquidityYes ?? BigInt(0)) / 1e18;
+      const liquidityNo = Number(o.liquidityNo ?? BigInt(0)) / 1e18;
+      
+      // Token amounts are in 6 decimals (USDC)
+      const totalYesTokens = Number(o.totalYesTokens ?? BigInt(0)) / 1e6;
+      const totalNoTokens = Number(o.totalNoTokens ?? BigInt(0)) / 1e6;
+      
+      // Price values are in 18 decimals, convert to decimal (0-1 range)
+      const yesPrice = Number(o.priceYes ?? BigInt(0)) / 1e18;
+      const noPrice = Number(o.priceNo ?? BigInt(0)) / 1e18;
+      
       const creator = String(o.creator);
       const resolved = Boolean(o.resolved);
       const outcomeBool = Boolean(o.outcome);
-      const creationTime = Number(o.creationTime ?? 0n) * 1000;
+      const creationTime = Number(o.creationTime ?? BigInt(0)) * 1000; // Convert seconds to milliseconds
+      
+      // Console log converted values
+      console.log("Converted liquidityYes (ETH):", liquidityYes);
+      console.log("Converted liquidityNo (ETH):", liquidityNo);
+      console.log("Converted totalYesTokens (USDC):", totalYesTokens);
+      console.log("Converted totalNoTokens (USDC):", totalNoTokens);
+      console.log("Converted yesPrice (decimal):", yesPrice);
+      console.log("Converted noPrice (decimal):", noPrice);
+      console.log("Converted creationTime (ms):", creationTime);
+      
       return {
         id: String(o.id ?? opportunityId),
-        title: String(o.name ?? "Opportunity"),
-        description: String(o.metadataUrl ?? ""),
-        category: "Onchain",
-        status: resolved ? "resolved" : "active",
-        outcome: resolved ? (outcomeBool ? "yes" : "no") : null,
-        resolutionCriteria: "",
-        resolutionDate: new Date(
-          creationTime + 7 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        initialLiquidity: liquidityYes + liquidityNo,
-        currentLiquidity: liquidityYes + liquidityNo,
-        yesPrice,
-        noPrice,
-        totalVolume: liquidityYes + liquidityNo,
-        participants: 0,
-        images: [],
-        banners: [],
-        isCreator: address
-          ? creator?.toLowerCase() === address.toLowerCase()
-          : false,
-        createdAt: new Date(creationTime).toISOString(),
-        creator: {
-          address: creator,
-          name: creator.slice(0, 6) + "..." + creator.slice(-4),
-          avatar: "/api/placeholder/40/40",
-        },
+        name: String(o.name ?? "Opportunity"),
+        metadataUrl: String(o.metadataUrl ?? ""),
+        liquidityYes,
+        liquidityNo,
+        priceYes: yesPrice,
+        priceNo: noPrice,
+        creator,
+        resolved,
+        outcome: outcomeBool,
+        totalYesTokens,
+        totalNoTokens,
+        creationTime,
       };
     } catch (e) {
+      console.error("Error parsing opportunity data:", e);
       return null;
     }
   }, [onchainOpportunity, address, opportunityId]);
@@ -148,30 +156,49 @@ export default function OpportunityDetail() {
     setLoading(Boolean(isLoadingOpportunity));
   }, [parsedOpportunity, isLoadingOpportunity]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "text-green-400 bg-green-400/20";
-      case "resolved":
-        return "text-blue-400 bg-blue-400/20";
-      case "pending":
-        return "text-yellow-400 bg-yellow-400/20";
-      case "cancelled":
-        return "text-red-400 bg-red-400/20";
-      default:
-        return "text-gray-400 bg-gray-400/20";
+  // Fetch IPFS metadata
+  const fetchIpfsMetadata = async (metadataUrl: string) => {
+    if (!metadataUrl || metadataUrl === "") return;
+    
+    setMetadataLoading(true);
+    try {
+      console.log("Fetching IPFS metadata from:", metadataUrl);
+      const response = await fetch(metadataUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch metadata: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("IPFS metadata fetched:", data);
+      setIpfsMetadata(data);
+    } catch (error) {
+      console.error("Error fetching IPFS metadata:", error);
+      setIpfsMetadata(null);
+    } finally {
+      setMetadataLoading(false);
     }
   };
 
-  const getOutcomeIcon = (outcome: string | null | undefined) => {
-    switch (outcome) {
-      case "yes":
-        return <CheckCircle className="w-6 h-6 text-green-400" />;
-      case "no":
-        return <XCircle className="w-6 h-6 text-red-400" />;
-      default:
-        return <Clock className="w-6 h-6 text-gray-400" />;
+  // Fetch metadata when opportunity changes
+  useMemo(() => {
+    if (parsedOpportunity?.metadataUrl) {
+      fetchIpfsMetadata(parsedOpportunity.metadataUrl);
     }
+  }, [parsedOpportunity?.metadataUrl]);
+
+  const getStatusColor = (resolved: boolean) => {
+    if (resolved) {
+      return "text-blue-400 bg-blue-400/20";
+    }
+    return "text-green-400 bg-green-400/20";
+  };
+
+  const getOutcomeIcon = (resolved: boolean, outcome: boolean) => {
+    if (!resolved) {
+      return <Clock className="w-6 h-6 text-gray-400" />;
+    }
+    return outcome ? 
+      <CheckCircle className="w-6 h-6 text-green-400" /> : 
+      <XCircle className="w-6 h-6 text-red-400" />;
   };
 
   const handleOutcomeSelection = (outcome: "yes" | "no") => {
@@ -214,9 +241,24 @@ export default function OpportunityDetail() {
   const handleTrade = async () => {
     if (!opportunity || !tradingAmount) return;
 
+    console.log("=== Starting Trade ===");
+    console.log("Current trading side state:", tradingSide);
+    console.log("Current trading amount state:", tradingAmount);
+
     try {
-      const amount = BigInt(Math.floor(parseFloat(tradingAmount) * 1_000_000));
-      await buyTokens(BigInt(opportunity.id), tradingSide === "yes", amount);
+      // Convert USDC amount to Wei (6 decimals for USDC)
+        const amount = BigInt(Math.floor(parseFloat(tradingAmount) * 1e18));
+      console.log("Trading amount in USDC:", tradingAmount);
+      console.log("Trading amount in Wei:", amount.toString());
+      console.log("Trading side (string):", tradingSide);
+      console.log("Trading side (boolean):", tradingSide === "yes");
+      console.log("Trading side (boolean) type:", typeof (tradingSide === "yes"));
+      console.log("Opportunity ID:", opportunity.id);
+      
+      const sideBoolean = tradingSide === "yes";
+      console.log("Side boolean value:", sideBoolean, "Type:", typeof sideBoolean);
+      
+      await createPositionChain(Number(opportunity.id), sideBoolean, amount);
       setShowTradingModal(false);
       setTradingAmount("");
     } catch (error) {
@@ -301,26 +343,26 @@ export default function OpportunityDetail() {
               <div className="flex items-center space-x-3 mb-4">
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                    opportunity.status
+                    opportunity.resolved
                   )}`}
                 >
-                  {opportunity.status}
+                  {opportunity.resolved ? "resolved" : "active"}
                 </span>
                 <span className="text-gray-400 text-sm">
-                  {opportunity.category}
+                  Onchain
                 </span>
-                {opportunity.isCreator && (
+                {address && opportunity.creator?.toLowerCase() === address.toLowerCase() && (
                   <span className="text-orange-400 text-sm font-medium">
                     CREATOR
                   </span>
                 )}
-                {getOutcomeIcon(opportunity.outcome)}
+                {getOutcomeIcon(opportunity.resolved, opportunity.outcome)}
               </div>
               <h1 className="text-3xl font-bold text-white mb-4">
-                {opportunity.title}
+                {ipfsMetadata?.title || opportunity.name}
               </h1>
               <p className="text-lg text-gray-300 leading-relaxed">
-                {opportunity.description}
+                {ipfsMetadata?.description || opportunity.metadataUrl}
               </p>
             </div>
 
@@ -328,7 +370,7 @@ export default function OpportunityDetail() {
               <button className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
                 <Share2 className="w-5 h-5" />
               </button>
-              {opportunity.isCreator && (
+              {address && opportunity.creator?.toLowerCase() === address.toLowerCase() && (
                 <div className="flex space-x-2">
                   <button
                     onClick={() =>
@@ -351,17 +393,17 @@ export default function OpportunityDetail() {
 
           {/* Creator Info */}
           <div className="flex items-center space-x-3 mb-6">
-            <img
-              src={opportunity.creator.avatar}
-              alt={opportunity.creator.name}
-              className="w-10 h-10 rounded-full"
-            />
+            <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">
+                {opportunity.creator?.slice(0, 2).toUpperCase() || "??"}
+              </span>
+            </div>
             <div>
               <p className="text-white font-medium">
-                {opportunity.creator.name}
+                {opportunity.creator?.slice(0, 6)}...{opportunity.creator?.slice(-4)}
               </p>
               <p className="text-gray-400 text-sm">
-                {opportunity.creator.address}
+                {opportunity.creator}
               </p>
             </div>
           </div>
@@ -369,63 +411,150 @@ export default function OpportunityDetail() {
           {/* Key Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <p className="text-gray-400 text-sm">Current Liquidity</p>
+              <p className="text-gray-400 text-sm">Yes Liquidity</p>
               <p className="text-2xl font-bold text-white">
-                {opportunity.currentLiquidity.toFixed(2)} ETH
+                {opportunity.liquidityYes.toFixed(4)} ETH
               </p>
             </div>
             <div className="text-center">
-              <p className="text-gray-400 text-sm">Total Volume</p>
+              <p className="text-gray-400 text-sm">No Liquidity</p>
               <p className="text-2xl font-bold text-white">
-                {opportunity.totalVolume.toFixed(1)} ETH
+                {opportunity.liquidityNo.toFixed(4)} ETH
               </p>
             </div>
             <div className="text-center">
-              <p className="text-gray-400 text-sm">Participants</p>
+              <p className="text-gray-400 text-sm">Total Liquidity</p>
               <p className="text-2xl font-bold text-white">
-                {opportunity.participants}
+                {(opportunity.liquidityYes + opportunity.liquidityNo).toFixed(4)} ETH
               </p>
             </div>
             <div className="text-center">
-              <p className="text-gray-400 text-sm">Resolution Date</p>
+              <p className="text-gray-400 text-sm">Created</p>
               <p className="text-lg font-semibold text-white">
-                {new Date(opportunity.resolutionDate).toLocaleDateString()}
+                {new Date(opportunity.creationTime).toLocaleDateString()}
               </p>
             </div>
           </div>
         </div>
 
+        {/* Banner Section - Full Width */}
+        {ipfsMetadata?.banners?.length > 0 && (
+          <div className="mb-8">
+            {metadataLoading ? (
+              <div className="flex items-center justify-center py-16 bg-gray-900/50 border border-orange-500/20 rounded-2xl">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                <span className="ml-3 text-gray-300">Loading banner...</span>
+              </div>
+            ) : (
+              <div className="relative overflow-hidden rounded-2xl">
+                {ipfsMetadata.banners.map((banner: string, index: number) => (
+                  <img
+                    key={index}
+                    src={banner}
+                    alt={`Banner ${index + 1}`}
+                    className="w-full h-64 md:h-80 lg:h-96 object-cover"
+                    onError={(e) => {
+                      console.error("Error loading banner:", banner);
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ))}
+                {/* Optional overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Images */}
-            {opportunity.images.length > 0 && (
+            {/* Images Gallery */}
+            {ipfsMetadata?.images?.length > 0 && (
               <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
-                <h3 className="text-xl font-semibold text-white mb-4">
+                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  <Target className="w-6 h-6 mr-2 text-orange-500" />
                   Images
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {opportunity.images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Opportunity image ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                  ))}
-                </div>
+                
+                {metadataLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                    <span className="ml-3 text-gray-300">Loading images...</span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {ipfsMetadata.images.map((image: string, index: number) => (
+                      <div key={index} className="group relative overflow-hidden rounded-lg">
+                        <img
+                          src={image}
+                          alt={`Image ${index + 1}`}
+                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            console.error("Error loading image:", image);
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Resolution Criteria */}
+            {/* Resolution Criteria from IPFS */}
+            {ipfsMetadata?.resolutionCriteria && (
+              <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  <Target className="w-6 h-6 mr-2 text-orange-500" />
+                  Resolution Criteria
+                </h3>
+                <p className="text-gray-300 leading-relaxed">
+                  {ipfsMetadata.resolutionCriteria}
+                </p>
+              </div>
+            )}
+
+            {/* Fallback: Show raw metadata URL if no IPFS data */}
+            {!metadataLoading && !ipfsMetadata && opportunity.metadataUrl && (
+              <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  <Info className="w-6 h-6 mr-2 text-orange-500" />
+                  Metadata
+                </h3>
+                <p className="text-gray-300 mb-2">Raw metadata URL:</p>
+                <a 
+                  href={opportunity.metadataUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-orange-400 hover:text-orange-300 break-all"
+                >
+                  {opportunity.metadataUrl}
+                </a>
+              </div>
+            )}
+
+            {/* Token Information */}
             <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
                 <Target className="w-6 h-6 mr-2 text-orange-500" />
-                Resolution Criteria
+                Token Information
               </h3>
-              <p className="text-gray-300 leading-relaxed">
-                {opportunity.resolutionCriteria}
-              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Yes Tokens</p>
+                  <p className="text-xl font-bold text-white">
+                    {opportunity.totalYesTokens.toFixed(2)} USDC
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm">Total No Tokens</p>
+                  <p className="text-xl font-bold text-white">
+                    {opportunity.totalNoTokens.toFixed(2)} USDC
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Recent Positions */}
@@ -450,7 +579,7 @@ export default function OpportunityDetail() {
                       ></div>
                       <div>
                         <p className="text-white font-medium">
-                          {position.side.toUpperCase()} - {position.amount} ETH
+                          {position.side.toUpperCase()} - {(position.amount / 1e18).toFixed(2)} ETH
                         </p>
                         <p className="text-gray-400 text-sm">
                           {position.user} •{" "}
@@ -473,29 +602,32 @@ export default function OpportunityDetail() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Trading Panel */}
-            {opportunity.status === "active" && (
+            {!opportunity.resolved && (
               <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
                 <h3 className="text-xl font-semibold text-white mb-4">Trade</h3>
 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Amount (ETH)
+                      Amount (USDC)
                     </label>
                     <input
                       type="number"
-                      step="0.001"
+                      step="0.01"
                       min="0"
                       value={tradingAmount}
                       onChange={(e) => setTradingAmount(e.target.value)}
                       className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                      placeholder="0.1"
+                      placeholder="10.00"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <button
-                      onClick={() => setTradingSide("yes")}
+                      onClick={() => {
+                        console.log("Setting trading side to YES");
+                        setTradingSide("yes");
+                      }}
                       className={`p-4 rounded-lg border-2 transition-colors ${
                         tradingSide === "yes"
                           ? "border-green-500 bg-green-500/20 text-green-400"
@@ -505,12 +637,15 @@ export default function OpportunityDetail() {
                       <div className="text-center">
                         <p className="font-semibold">YES</p>
                         <p className="text-sm">
-                          {(opportunity.yesPrice * 100).toFixed(1)}%
+                          {(opportunity.priceYes * 100).toFixed(1)}%
                         </p>
                       </div>
                     </button>
                     <button
-                      onClick={() => setTradingSide("no")}
+                      onClick={() => {
+                        console.log("Setting trading side to NO");
+                        setTradingSide("no");
+                      }}
                       className={`p-4 rounded-lg border-2 transition-colors ${
                         tradingSide === "no"
                           ? "border-red-500 bg-red-500/20 text-red-400"
@@ -520,7 +655,7 @@ export default function OpportunityDetail() {
                       <div className="text-center">
                         <p className="font-semibold">NO</p>
                         <p className="text-sm">
-                          {(opportunity.noPrice * 100).toFixed(1)}%
+                          {(opportunity.priceNo * 100).toFixed(1)}%
                         </p>
                       </div>
                     </button>
@@ -538,7 +673,7 @@ export default function OpportunityDetail() {
             )}
 
             {/* Creator Actions */}
-            {opportunity.isCreator && opportunity.status === "active" && (
+            {address && opportunity.creator?.toLowerCase() === address.toLowerCase() && !opportunity.resolved && (
               <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6">
                 <h3 className="text-xl font-semibold text-white mb-4">
                   Creator Actions
@@ -563,7 +698,7 @@ export default function OpportunityDetail() {
             )}
 
             {/* Claim Winnings when resolved */}
-            {opportunity.status === "resolved" && (
+            {opportunity.resolved && (
               <div className="bg-gray-900/50 border border-green-500/20 rounded-xl p-6">
                 <h3 className="text-xl font-semibold text-white mb-4">
                   Claim Winnings
@@ -648,7 +783,7 @@ export default function OpportunityDetail() {
             </h3>
             <div className="bg-gray-800/50 rounded-lg p-4 mb-6">
               <p className="text-gray-300 mb-2">
-                <span className="font-semibold">{tradingAmount} ETH</span> on{" "}
+                <span className="font-semibold">{tradingAmount} USDC</span> on{" "}
                 <span
                   className={`font-semibold ${
                     tradingSide === "yes" ? "text-green-400" : "text-red-400"
@@ -660,8 +795,8 @@ export default function OpportunityDetail() {
               <p className="text-sm text-gray-400">
                 Price:{" "}
                 {tradingSide === "yes"
-                  ? (opportunity.yesPrice * 100).toFixed(1)
-                  : (opportunity.noPrice * 100).toFixed(1)}
+                  ? (opportunity.priceYes * 100).toFixed(1)
+                  : (opportunity.priceNo * 100).toFixed(1)}
                 %
               </p>
             </div>

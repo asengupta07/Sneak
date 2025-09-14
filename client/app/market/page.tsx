@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
-import {
-  useBuyTokens,
-  useCreatePositionChain,
-} from "../hooks/useSneakProtocolWrites";
+import { useCreatePositionChain } from "../hooks/useSneakProtocolWrites";
 import { useNextOpportunityId } from "../hooks/useSneakProtocolReads";
 import {
   Search,
@@ -65,7 +62,6 @@ interface UserPosition {
 
 export default function MarketPage() {
   const router = useRouter();
-  const buyTokens = useBuyTokens();
   const createChain = useCreatePositionChain();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [filteredOpportunities, setFilteredOpportunities] = useState<
@@ -286,7 +282,7 @@ export default function MarketPage() {
 
     try {
       const tradeAmount = parseFloat(tradingAmount);
-      await buyTokens(
+      await createChain(
         BigInt(opportunity.id),
         tradingSide === "yes",
         BigInt(Math.floor(tradeAmount * 1_000_000))
