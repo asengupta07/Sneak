@@ -396,13 +396,13 @@ export default function OpportunitiesDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-white">Chains At Risk</h3>
           </div>
-          {Array.isArray(chainsAtRisk?.result) &&
-            chainsAtRisk.result.length === 0 && (
+          {Array.isArray((chainsAtRisk as any)?.result) &&
+            ((chainsAtRisk as any).result.length === 0) && (
               <p className="text-gray-400">No chains at risk.</p>
             )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.isArray(chainsAtRisk?.result) &&
-              chainsAtRisk.result.map((cid: any, idx: number) => (
+            {Array.isArray((chainsAtRisk as any)?.result) &&
+              (chainsAtRisk as any).result.map((cid: any, idx: number) => (
                 <ChainCard
                   key={idx}
                   chainId={cid as any}
@@ -485,7 +485,7 @@ export default function OpportunitiesDashboard() {
 
         {/* Opportunities Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredOpportunities.map((opportunity) => (
+          {filteredOpportunities.map((opportunity: any) => (
             <div
               key={opportunity.id}
               className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 hover:border-orange-500/40 transition-colors"
@@ -754,10 +754,10 @@ function ChainCard({
       <div className="text-sm text-gray-400 mb-4">
         <p>
           Total Positions:{" "}
-          {String((health as any)?.result?.totalPositions ?? 0n)}
+          {String((health as any)?.result?.totalPositions ?? BigInt(0))}
         </p>
         <p>
-          Health Factor: {String((health as any)?.result?.healthFactor ?? 0n)}
+          Health Factor: {String((health as any)?.result?.healthFactor ?? BigInt(0))}
         </p>
       </div>
       <div className="grid grid-cols-2 gap-2 mb-3">
