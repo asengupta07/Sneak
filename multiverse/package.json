@@ -5,13 +5,24 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.3",
     "@nomicfoundation/hardhat-toolbox-viem": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^3.0.2",
     "@types/chai": "^5.2.2",
     "@types/node": "^22.18.3",
     "chai": "^6.0.1",
+    "dotenv": "^16.4.5",
     "forge-std": "github:foundry-rs/forge-std#v1.9.4",
     "hardhat": "^3.0.6",
     "typescript": "~5.8.3",
     "viem": "^2.37.5"
+  },
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.ts --network ${NETWORK:-fuji}",
+  "verify": "node scripts/verify.mjs",
+    "deploy:fuji": "hardhat ignition deploy ./ignition/modules/SneakProtocol.ts --network fuji",
+    "deploy:avax": "hardhat ignition deploy ./ignition/modules/SneakProtocol.ts --network avalanche",
+    "deploy:script:fuji": "hardhat run scripts/deploy.ts --network fuji",
+    "deploy:script:avax": "hardhat run scripts/deploy.ts --network avalanche"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0"

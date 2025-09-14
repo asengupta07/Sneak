@@ -266,17 +266,25 @@ Multiple users can build competing chains on the same opportunities, creating co
 
 ## 🛣 Roadmap
 
-- [ ] Frontend interface integration
-- [ ] Oracle integration for automated resolution
-- [ ] Cross-chain compatibility
-- [ ] Advanced liquidation incentives
-- [ ] Governance token integration
-- [ ] Mobile app development
 
 ## 📄 License
 
 UNLICENSED - See LICENSE file for details.
 
+## Deploying to Avalanche
+
+1. Copy `.env.example` to `.env` and fill values:
+  - `AVALANCHE_RPC_URL` / `FUJI_RPC_URL`
+  - `AVALANCHE_PRIVATE_KEY` / `FUJI_PRIVATE_KEY`
+  - Optional `EXISTING_BASE_TOKEN` on mainnet (to use an existing ERC20 like USDC)
+
+2. Install deps and run a deployment:
+
+  - Fuji (testnet) via script: `pnpm hardhat run scripts/deploy.ts --network fuji`
+  - Fuji via Ignition: `pnpm hardhat ignition deploy ./ignition/modules/SneakProtocol.ts --network fuji`
+  - Avalanche mainnet via script: `pnpm hardhat run scripts/deploy.ts --network avalanche`
+
+The script will deploy a MockERC20 on testnets. On mainnet, set `EXISTING_BASE_TOKEN` to skip mock token deployment.
 ## 🤝 Contributing
 
 1. Fork the repository
