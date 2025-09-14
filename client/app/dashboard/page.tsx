@@ -433,6 +433,31 @@ export default function OpportunitiesDashboard() {
                             ))}
                     </div>
                 </div>
+                {/* Chains At Risk */}
+                <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-semibold text-white">
+                            Chains At Risk
+                        </h3>
+                    </div>
+                    {Array.isArray((chainsAtRisk as any)?.result) &&
+                        (chainsAtRisk as any).result.length === 0 && (
+                            <p className="text-gray-400">No chains at risk.</p>
+                        )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {Array.isArray((chainsAtRisk as any)?.result) &&
+                            (chainsAtRisk as any).result.map(
+                                (cid: any, idx: number) => (
+                                    <ChainCard
+                                        key={idx}
+                                        chainId={cid as any}
+                                        onExtend={extendChain}
+                                        onLiquidate={liquidateChain}
+                                    />
+                                )
+                            )}
+                    </div>
+                </div>
 
                 {/* Filters and Search */}
                 <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
@@ -531,7 +556,7 @@ export default function OpportunitiesDashboard() {
 
                 {/* Opportunities Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredOpportunities.map((opportunity) => (
+                    {filteredOpportunities.map((opportunity: any) => (
                         <div
                             key={opportunity.id}
                             className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 hover:border-orange-500/40 transition-colors"
@@ -561,7 +586,7 @@ export default function OpportunitiesDashboard() {
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-1">
-                                    {/* {getOutcomeIcon(opportunity.outcome)} */}
+                                    {getOutcomeIcon(opportunity.outcome)}
                                     <button className="p-1 hover:bg-gray-700 rounded">
                                         <MoreVertical className="w-4 h-4 text-gray-400" />
                                     </button>
@@ -848,11 +873,13 @@ function ChainCard({
             <div className="text-sm text-gray-400 mb-4">
                 <p>
                     Total Positions:{" "}
-                    {String((health as any)?.result?.totalPositions ?? 0)}
+                    {String(
+                        (health as any)?.result?.totalPositions ?? BigInt(0)
+                    )}
                 </p>
                 <p>
                     Health Factor:{" "}
-                    {String((health as any)?.result?.healthFactor ?? 0)}
+                    {String((health as any)?.result?.healthFactor ?? BigInt(0))}
                 </p>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-3">
