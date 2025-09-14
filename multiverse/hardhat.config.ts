@@ -5,86 +5,88 @@ import { configVariable } from "hardhat/config";
 import "dotenv/config";
 import "@nomicfoundation/hardhat-verify";
 
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY!;
+
 const config: any = {
-  plugins: [hardhatToolboxViemPlugin],
-  solidity: {
-    profiles: {
-      default: {
-        version: "0.8.28",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-          viaIR: true,
+    plugins: [hardhatToolboxViemPlugin],
+    solidity: {
+        profiles: {
+            default: {
+                version: "0.8.28",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 200,
+                    },
+                    viaIR: true,
+                },
+            },
+            production: {
+                version: "0.8.28",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 200,
+                    },
+                },
+            },
         },
-      },
-      production: {
-        version: "0.8.28",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
+    },
+    networks: {
+        hardhatMainnet: {
+            type: "edr-simulated",
+            chainType: "l1",
         },
-      },
+        hardhatOp: {
+            type: "edr-simulated",
+            chainType: "op",
+        },
+        sepolia: {
+            type: "http",
+            chainType: "l1",
+            url: configVariable("SEPOLIA_RPC_URL"),
+            accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+        },
+        // Avalanche Fuji Testnet
+        fuji: {
+            type: "http",
+            chainType: "l1",
+            chainId: 43113,
+            url: configVariable("FUJI_RPC_URL"),
+            accounts: [configVariable("FUJI_PRIVATE_KEY")],
+        },
+        // Avalanche C-Chain Mainnet
+        avalanche: {
+            type: "http",
+            chainType: "l1",
+            chainId: 43114,
+            url: configVariable("AVALANCHE_RPC_URL"),
+            accounts: [configVariable("AVALANCHE_PRIVATE_KEY")],
+        },
+        // Snowtrace network for verification
+        snowtrace: {
+            type: "http",
+            chainType: "l1",
+            chainId: 43113,
+            url: "https://api.avax-test.network/ext/bc/C/rpc",
+            accounts: [configVariable("FUJI_PRIVATE_KEY")],
+        },
     },
-  },
-  networks: {
-    hardhatMainnet: {
-      type: "edr-simulated",
-      chainType: "l1",
+    etherscan: {
+        apiKey: {
+            fuji: "verifyContract", // Use the same key as in the original command
+        },
+        customChains: [
+            {
+                network: "fuji",
+                chainId: 43113,
+                urls: {
+                    apiURL: "https://api.routescan.io/v2/network/testnet/evm/43113/etherscan",
+                    browserURL: "https://avalanche.testnet.localhost:8080",
+                },
+            },
+        ],
     },
-    hardhatOp: {
-      type: "edr-simulated",
-      chainType: "op",
-    },
-    sepolia: {
-      type: "http",
-      chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
-    },
-    // Avalanche Fuji Testnet
-    fuji: {
-      type: "http",
-      chainType: "l1",
-      chainId: 43113,
-      url: configVariable("FUJI_RPC_URL"),
-      accounts: [configVariable("FUJI_PRIVATE_KEY")],
-    },
-    // Avalanche C-Chain Mainnet
-    avalanche: {
-      type: "http",
-      chainType: "l1",
-      chainId: 43114,
-      url: configVariable("AVALANCHE_RPC_URL"),
-      accounts: [configVariable("AVALANCHE_PRIVATE_KEY")],
-    },
-    // Snowtrace network for verification
-    snowtrace: {
-      type: "http",
-      chainType: "l1",
-      chainId: 43113,
-      url: 'https://api.avax-test.network/ext/bc/C/rpc',
-      accounts: [configVariable("FUJI_PRIVATE_KEY")]
-    },
-  },
-  etherscan: {
-    apiKey: {
-      fuji: 'verifyContract', // Use the same key as in the original command
-    },
-    customChains: [
-      {
-        network: 'fuji',
-        chainId: 43113,
-        urls: {
-          apiURL: 'https://api.routescan.io/v2/network/testnet/evm/43113/etherscan',
-          browserURL: 'https://avalanche.testnet.localhost:8080'
-        }
-      }
-    ]
-  },
 };
 
 export default config as HardhatUserConfig;

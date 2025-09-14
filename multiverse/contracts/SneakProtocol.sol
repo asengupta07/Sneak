@@ -13,15 +13,15 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
     uint256 public constant LTV = 6000; // 60% LTV in basis points
     uint256 public constant FIXED_FEE = 5 * 10 ** 18; // $5 fixed fee
     uint256 public constant INTEREST_RATE = 0; // No interest for simplicity
-    uint256 public constant LIQUIDATION_PENALTY = 500; // 5% liquidation penalty
-    uint256 public constant LP_REWARD_RATE = 400; // 4% LP reward
-    uint256 public constant PROTOCOL_FEE_RATE = 100; // 1% protocol fee
-    uint256 public constant HYSTERESIS = 100; // 1% hysteresis for liquidation
+    uint256 public constant LIQUIDATION_PENALTY = 500;
+    uint256 public constant LP_REWARD_RATE = 400; 
+    uint256 public constant PROTOCOL_FEE_RATE = 100;
+    uint256 public constant HYSTERESIS = 100; 
 
     // State variables
     uint256 public nextOpportunityId = 1;
     uint256 public nextChainId = 1;
-    IERC20 public immutable baseToken; // USDC or similar stablecoin
+    IERC20 public immutable baseToken; 
 
     struct Opportunity {
         uint256 id;
@@ -29,11 +29,11 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         string metadataUrl;
         uint256 liquidityYes;
         uint256 liquidityNo;
-        uint256 priceYes; // In basis points
-        uint256 priceNo; // In basis points
+        uint256 priceYes; 
+        uint256 priceNo; 
         address creator;
         bool resolved;
-        bool outcome; // true for YES, false for NO
+        bool outcome; 
         uint256 totalYesTokens;
         uint256 totalNoTokens;
         uint256 creationTime;
@@ -41,7 +41,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
 
     struct Position {
         uint256 opportunityId;
-        bool side; // true for YES, false for NO
+        bool side; 
         uint256 amount;
         uint256 tokens;
         uint256 currentValue;
@@ -64,7 +64,6 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         public userTokens; // opportunityId => side => user => amount
     mapping(address => uint256) public protocolFees;
 
-    // Events
     event OpportunityCreated(
         uint256 indexed opportunityId,
         string name,
