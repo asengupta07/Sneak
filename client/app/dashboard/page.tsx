@@ -3,15 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
-// import {
-//     useGetChainsAtRisk,
-//     useGetChainHealthData,
-//     useGetLiquidationPreview,
-// } from "../hooks/useSneakProtocolReads";
-// import {
-//     useExtendChain,
-//     useLiquidateChain,
-// } from "../hooks/useSneakProtocolWrites";
 import {
     Search,
     Filter,
