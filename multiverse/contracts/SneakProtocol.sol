@@ -26,7 +26,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
     struct Opportunity {
         uint256 id;
         string name;
-        string imageUrl;
+        string metadataUrl;
         uint256 liquidityYes;
         uint256 liquidityNo;
         uint256 priceYes; // In basis points
@@ -95,7 +95,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
     // Create a new opportunity
     function createOpportunity(
         string calldata _name,
-        string calldata _imageUrl,
+        string calldata _metadataUrl,
         uint256 _initialLiquidity
     ) external nonReentrant {
         require(_initialLiquidity > 0, "Initial liquidity must be positive");
@@ -113,7 +113,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         opportunities[nextOpportunityId] = Opportunity({
             id: nextOpportunityId,
             name: _name,
-            imageUrl: _imageUrl,
+            metadataUrl: _metadataUrl,
             liquidityYes: halfLiquidity,
             liquidityNo: halfLiquidity,
             priceYes: INITIAL_PRICE,
@@ -137,7 +137,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         emit OpportunityCreated(
             nextOpportunityId,
             _name,
-            _imageUrl,
+            _metadataUrl,
             _initialLiquidity
         );
         nextOpportunityId++;

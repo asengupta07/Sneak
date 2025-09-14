@@ -69,7 +69,13 @@ async function main() {
   }
 
   // Get the created opportunity
-  const opportunity = await sneakProtocol.read.getOpportunity([1n]);
+  const opportunity = await sneakProtocol.read.getOpportunity([1n]) as {
+    name: string;
+    liquidityYes: bigint;
+    liquidityNo: bigint;
+    priceYes: bigint;
+    priceNo: bigint;
+  };
   console.log("📊 Opportunity details:");
   console.log("   Name:", opportunity.name);
   console.log("   YES liquidity:", formatEther(opportunity.liquidityYes), "USDC");
