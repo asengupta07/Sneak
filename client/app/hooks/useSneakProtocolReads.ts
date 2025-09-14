@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { useReadContract, useAccount } from 'wagmi'
-import { abi } from '../abi'
+import  abi  from '../abi'
 
 // TODO: Replace with your deployed address or inject via env
 export const SNEAK_PROTOCOL_ADDRESS = process.env.NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS as `0x${string}` | undefined

@@ -1,7 +1,7 @@
 "use client"
 
 import { useWriteContract } from 'wagmi'
-import { abi } from '../abi'
+import  abi  from '../abi'
 import { SNEAK_PROTOCOL_ADDRESS } from './useSneakProtocolReads'
 
 type BigNumberish = bigint | number | string
