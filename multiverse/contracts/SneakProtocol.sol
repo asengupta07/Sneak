@@ -791,4 +791,12 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         protocolFees[_token] = 0;
         require(IERC20(_token).transfer(owner(), amount), "Transfer failed");
     }
+
+    function getOpportunities() external view returns (Opportunity[] memory) {
+        Opportunity[] memory opps = new Opportunity[](nextOpportunityId - 1);
+        for (uint256 i = 1; i < nextOpportunityId; i++) {
+            opps[i - 1] = opportunities[i];
+        }
+        return opps;
+    }
 }
