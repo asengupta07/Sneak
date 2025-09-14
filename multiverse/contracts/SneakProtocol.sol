@@ -61,7 +61,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
     mapping(uint256 => PositionChain) public positionChains;
     mapping(address => uint256[]) public userChains;
     mapping(uint256 => mapping(bool => mapping(address => uint256)))
-        public userTokens; // opportunityId => side => user => amount
+        public userTokens; 
     mapping(address => uint256) public protocolFees;
 
     event OpportunityCreated(
@@ -281,7 +281,6 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         PositionChain storage chain = positionChains[_chainId];
         require(chain.positions.length > 0, "Chain has no positions");
 
-        // Get collateral value from last position
         Position storage lastPosition = chain.positions[
             chain.positions.length - 1
         ];
@@ -318,7 +317,6 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         emit ChainExtended(_chainId, _opportunityId, _side, allocationAmount);
     }
 
-    // Check and liquidate undercollateralized chains
     function liquidateChain(uint256 _chainId) external nonReentrant {
         PositionChain storage chain = positionChains[_chainId];
         require(!chain.liquidated, "Chain already liquidated");
@@ -784,7 +782,6 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
             });
     }
 
-    // Admin function to withdraw protocol fees
     function withdrawProtocolFees(address _token) external onlyOwner {
         uint256 amount = protocolFees[_token];
         protocolFees[_token] = 0;
