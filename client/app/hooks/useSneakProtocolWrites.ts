@@ -1,6 +1,5 @@
 "use client"
 
-import { useCallback } from 'react'
 import { useWriteContract } from 'wagmi'
 import { abi } from '../abi'
 import { SNEAK_PROTOCOL_ADDRESS } from './useSneakProtocolReads'
@@ -9,82 +8,148 @@ type BigNumberish = bigint | number | string
 
 export function useCreateOpportunity() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (name: string, imageUrl: string, initialLiquidity: BigNumberish) => {
+    return (
+        name: string,
+        imageUrl: string,
+        initialLiquidity: BigNumberish,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'createOpportunity', args: [name, imageUrl, BigInt(initialLiquidity as any)] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'createOpportunity', args: [name, imageUrl, BigInt(initialLiquidity as any)] },
+            options
+        )
+    }
 }
 
 export function useBuyTokens() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (opportunityId: BigNumberish, side: boolean, amount: BigNumberish) => {
+    return (
+        opportunityId: BigNumberish,
+        side: boolean,
+        amount: BigNumberish,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'buyTokens', args: [BigInt(opportunityId as any), side, BigInt(amount as any)] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'buyTokens', args: [BigInt(opportunityId as any), side, BigInt(amount as any)] },
+            options
+        )
+    }
 }
 
 export function useCreatePositionChain() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (opportunityId: BigNumberish, side: boolean, amount: BigNumberish) => {
+    return (
+        opportunityId: BigNumberish,
+        side: boolean,
+        amount: BigNumberish,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'createPositionChain', args: [BigInt(opportunityId as any), side, BigInt(amount as any)] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'createPositionChain', args: [BigInt(opportunityId as any), side, BigInt(amount as any)] },
+            options
+        )
+    }
 }
 
 export function useExtendChain() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (chainId: BigNumberish, opportunityId: BigNumberish, side: boolean) => {
+    return (
+        chainId: BigNumberish,
+        opportunityId: BigNumberish,
+        side: boolean,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'extendChain', args: [BigInt(chainId as any), BigInt(opportunityId as any), side] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'extendChain', args: [BigInt(chainId as any), BigInt(opportunityId as any), side] },
+            options
+        )
+    }
 }
 
 export function useLiquidateChain() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (chainId: BigNumberish) => {
+    return (
+        chainId: BigNumberish,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'liquidateChain', args: [BigInt(chainId as any)] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'liquidateChain', args: [BigInt(chainId as any)] },
+            options
+        )
+    }
 }
 
 export function useClaimWinnings() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (opportunityId: BigNumberish) => {
+    return (
+        opportunityId: BigNumberish,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'claimWinnings', args: [BigInt(opportunityId as any)] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'claimWinnings', args: [BigInt(opportunityId as any)] },
+            options
+        )
+    }
 }
 
 export function useResolveOpportunity() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (opportunityId: BigNumberish, outcome: boolean) => {
+    return (
+        opportunityId: BigNumberish,
+        outcome: boolean,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'resolveOpportunity', args: [BigInt(opportunityId as any), outcome] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'resolveOpportunity', args: [BigInt(opportunityId as any), outcome] },
+            options
+        )
+    }
 }
 
 export function useTransferOwnership() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (newOwner: `0x${string}`) => {
+    return (
+        newOwner: `0x${string}`,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'transferOwnership', args: [newOwner] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'transferOwnership', args: [newOwner] },
+            options
+        )
+    }
 }
 
 export function useRenounceOwnership() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async () => {
+    return (options?: any) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'renounceOwnership', args: [] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'renounceOwnership', args: [] },
+            options
+        )
+    }
 }
 
 export function useWithdrawProtocolFees() {
     const { writeContractAsync } = useWriteContract()
-    return useCallback(async (token: `0x${string}`) => {
+    return (
+        token: `0x${string}`,
+        options?: any
+    ) => {
         if (!SNEAK_PROTOCOL_ADDRESS) throw new Error('Missing NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS')
-        return writeContractAsync({ address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'withdrawProtocolFees', args: [token] })
-    }, [writeContractAsync])
+        return writeContractAsync(
+            { address: SNEAK_PROTOCOL_ADDRESS, abi, functionName: 'withdrawProtocolFees', args: [token] },
+            options
+        )
+    }
 }
 
 
