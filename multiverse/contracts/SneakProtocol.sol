@@ -14,14 +14,14 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
     uint256 public constant FIXED_FEE = 5 * 10 ** 18; // $5 fixed fee
     uint256 public constant INTEREST_RATE = 0; // No interest for simplicity
     uint256 public constant LIQUIDATION_PENALTY = 500;
-    uint256 public constant LP_REWARD_RATE = 400; 
+    uint256 public constant LP_REWARD_RATE = 400;
     uint256 public constant PROTOCOL_FEE_RATE = 100;
-    uint256 public constant HYSTERESIS = 100; 
+    uint256 public constant HYSTERESIS = 100;
 
     // State variables
     uint256 public nextOpportunityId = 1;
     uint256 public nextChainId = 1;
-    IERC20 public immutable baseToken; 
+    IERC20 public immutable baseToken;
 
     struct Opportunity {
         uint256 id;
@@ -29,11 +29,11 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         string metadataUrl;
         uint256 liquidityYes;
         uint256 liquidityNo;
-        uint256 priceYes; 
-        uint256 priceNo; 
+        uint256 priceYes;
+        uint256 priceNo;
         address creator;
         bool resolved;
-        bool outcome; 
+        bool outcome;
         uint256 totalYesTokens;
         uint256 totalNoTokens;
         uint256 creationTime;
@@ -41,7 +41,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
 
     struct Position {
         uint256 opportunityId;
-        bool side; 
+        bool side;
         uint256 amount;
         uint256 tokens;
         uint256 currentValue;
@@ -61,7 +61,7 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
     mapping(uint256 => PositionChain) public positionChains;
     mapping(address => uint256[]) public userChains;
     mapping(uint256 => mapping(bool => mapping(address => uint256)))
-        public userTokens; 
+        public userTokens;
     mapping(address => uint256) public protocolFees;
 
     event OpportunityCreated(
@@ -794,5 +794,125 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
             opps[i - 1] = opportunities[i];
         }
         return opps;
+    }
+
+    // User investment data structure
+    struct UserInvestment {
+        uint256 opportunityId;
+        string opportunityName;
+        string metadataUrl;
+        uint256 yesTokens;
+        uint256 noTokens;
+        uint256 yesValue; // Current market value of YES tokens
+        uint256 noValue; // Current market value of NO tokens
+        uint256 totalInvested; // Total amount user invested
+        bool hasInvestment; // True if user has any tokens
+        bool opportunityResolved;
+        bool opportunityOutcome;
+        uint256 creationTime;
+    }
+
+    // Get all opportunities a user has invested in with their token holdings
+    function getUserInvestments(
+        address _user
+    ) external view returns (UserInvestment[] memory) {
+        // First, count how many opportunities the user has invested in
+        uint256 investmentCount = 0;
+        for (uint256 i = 1; i < nextOpportunityId; i++) {
+            uint256 yesTokens = userTokens[i][true][_user];
+            uint256 noTokens = userTokens[i][false][_user];
+            if (yesTokens > 0 || noTokens > 0) {
+                investmentCount++;
+            }
+        }
+
+        // Create array with exact size
+        UserInvestment[] memory investments = new UserInvestment[](
+            investmentCount
+        );
+        uint256 currentIndex = 0;
+
+        // Populate the array
+        for (uint256 i = 1; i < nextOpportunityId; i++) {
+            uint256 yesTokens = userTokens[i][true][_user];
+            uint256 noTokens = userTokens[i][false][_user];
+
+            if (yesTokens > 0 || noTokens > 0) {
+                Opportunity memory opp = opportunities[i];
+
+                // Calculate current values
+                uint256 yesValue = 0;
+                uint256 noValue = 0;
+
+                if (yesTokens > 0) {
+                    if (opp.resolved) {
+                        if (opp.outcome) {
+                            // YES won - calculate payout
+                            uint256 totalLiquidity = opp.liquidityYes +
+                                opp.liquidityNo;
+                            uint256 lpReward = (totalLiquidity *
+                                LP_REWARD_RATE) / BASIS_POINTS;
+                            uint256 protocolFee = (totalLiquidity *
+                                PROTOCOL_FEE_RATE) / BASIS_POINTS;
+                            uint256 distributionPool = totalLiquidity -
+                                lpReward -
+                                protocolFee;
+                            yesValue =
+                                (yesTokens * distributionPool) /
+                                opp.totalYesTokens;
+                        } else {
+                            yesValue = 0; // YES lost
+                        }
+                    } else {
+                        // Not resolved - current market value
+                        yesValue = (yesTokens * opp.priceYes) / BASIS_POINTS;
+                    }
+                }
+
+                if (noTokens > 0) {
+                    if (opp.resolved) {
+                        if (!opp.outcome) {
+                            // NO won - calculate payout
+                            uint256 totalLiquidity = opp.liquidityYes +
+                                opp.liquidityNo;
+                            uint256 lpReward = (totalLiquidity *
+                                LP_REWARD_RATE) / BASIS_POINTS;
+                            uint256 protocolFee = (totalLiquidity *
+                                PROTOCOL_FEE_RATE) / BASIS_POINTS;
+                            uint256 distributionPool = totalLiquidity -
+                                lpReward -
+                                protocolFee;
+                            noValue =
+                                (noTokens * distributionPool) /
+                                opp.totalNoTokens;
+                        } else {
+                            noValue = 0; // NO lost
+                        }
+                    } else {
+                        // Not resolved - current market value
+                        noValue = (noTokens * opp.priceNo) / BASIS_POINTS;
+                    }
+                }
+
+                investments[currentIndex] = UserInvestment({
+                    opportunityId: i,
+                    opportunityName: opp.name,
+                    metadataUrl: opp.metadataUrl,
+                    yesTokens: yesTokens,
+                    noTokens: noTokens,
+                    yesValue: yesValue,
+                    noValue: noValue,
+                    totalInvested: yesValue + noValue,
+                    hasInvestment: true,
+                    opportunityResolved: opp.resolved,
+                    opportunityOutcome: opp.outcome,
+                    creationTime: opp.creationTime
+                });
+
+                currentIndex++;
+            }
+        }
+
+        return investments;
     }
 }
