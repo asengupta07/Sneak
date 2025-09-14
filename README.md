@@ -1,137 +1,311 @@
-# Sneak
+# Sneak: A Multiversal Finance Market Protocol
 
-**Private Opportunity Markets on Avalanche**
+## Abstract
+
+Sneak is a fully composable, ERC-20 based opportunity market protocol that allows users to speculate on outcomes ("opportunities") while leveraging conditional liquidity across multiple opportunities in a recursive, chainable fashion. Unlike traditional prediction markets, Sneak is designed to:
+
+- Represent opportunities using symmetric YES/NO ERC-20 token pairs.
+- Allow participants to leverage positions as collateral to create arbitrarily deep chains of opportunity trades.
+- Redistribute losing-side liquidity to winning participants, with a protocol fee and LP reward mechanism.
+- Provide a deterministic, algorithmic resolution system that preserves consistency across chains.
+
+This paper formalizes the mechanism design, tokenomics, liquidity dynamics, and recursive resolution algorithm.
 
 ---
 
 ## 1. Introduction
 
-Imagine spotting an unsigned band destined for massive success.
-Instead of cold-calling record labels, what if you could **bet on them yourself** – and get paid when you’re right?
+Prediction markets and DeFi composability have historically been disconnected — prediction tokens are often non-standard, illiquid, or unusable as collateral due to their binary payout structure. Sneak introduces an **opportunity market** primitive where opportunities are tradable, collateralizable, and recursively composable across multiple markets.
 
-**Sneak** introduces **Opportunity Markets**: private prediction markets where those who discover opportunities are financially rewarded by those who have the resources to act on them.
+Sneak enables:
 
-Music labels, research labs, and VCs all want to find the “next big thing” before competitors. Meanwhile, people on the ground – fans, shop owners, researchers – often spot these opportunities early but lack institutional connections or ways to monetize their insight.
-
-Prediction markets offer a way to turn information into signal using skin in the game. But traditional prediction markets require someone else to take the opposite side of every bet. This makes them poorly suited for discovery of early-stage opportunities where no one wants to bet against thousands of obscure ideas.
-
-**Sneak solves this by making the natural counterparties the institutions that benefit from early discovery — but keeping market prices private so they alone can act on the information.**
+- **Opportunity Creation:** Anyone can create a new opportunity by providing initial liquidity.
+- **Dynamic Pricing:** YES/NO prices are continuously updated based on buy/sell pressure.
+- **Composable Collateral:** Users can leverage positions (YES/NO tokens) as collateral to take positions on other opportunities.
+- **Chain Resolution:** If an outcome resolves, all dependent positions in chains are updated atomically.
 
 ---
 
-## 2. Intuition & Motivation
+## 2. Core Concepts
 
-### The Problem
+### 2.1 Opportunities
 
-* **Information is trapped**: Fans spot artists, researchers spot breakthroughs, locals spot businesses – but can’t monetize their insight.
-* **Institutions miss early signals**: Labels, labs, and investors only find opportunities late, when competition is high.
-* **Existing solutions don’t scale**: Scout programs require vetting and trust. Public prediction markets create free signals competitors can exploit.
+An **opportunity** $O_i$ is a market on a binary event (e.g., "Will Project X succeed?"). Each opportunity consists of:
 
-### The Goal
+- **YES token** $Y_i$ — represents belief that the event resolves positively.
+- **NO token** $N_i$ — represents belief that the event resolves negatively.
 
-Sneak aims to enable a mechanism where:
+Each opportunity maintains an LP-backed pool:
 
-* **Scouts (discoverers)** are rewarded for early insight.
-* **Sponsors (institutions)** receive private, actionable signals before competitors.
-* **Markets remain fair** and difficult to exploit by insiders.
+$$
+LP_i = \{L_{Y_i}, L_{N_i}\}
+$$
 
----
+where $L_{Y_i}$ and $L_{N_i}$ are the current liquidity reserves backing YES and NO tokens respectively.
 
-## 3. Mechanism Design
+### 2.2 Initial State
 
-### 3.1 Core Idea
+When an opportunity is created:
 
-* Sponsors (e.g., a record label) create a family of **private prediction markets** for statements like:
+- Creator deposits $L_0$ USD-equivalent liquidity.
+- Initial state: $L_{Y_i} = L_{N_i} = L_0/2$.
+- Initial price per token:
 
-  > “Will we sign Artist X in 2025?”
-* Scouts can create new markets for artists not yet listed.
-* The **sponsor provides liquidity** — e.g., \$25,000 per market — acting as the “dumb money” that scouts can profit from if they are right.
-* As scouts buy more shares, **the price rises (privately)**, giving the sponsor a signal to investigate earlier.
-* If the sponsor acts (signs the artist), winning shares pay out.
+$$
+P_{Y_i}(0) = P_{N_i}(0) = 0.5
+$$
 
-This creates a **decentralized scouting program** powered by Sneak, open to anyone worldwide.
+### 2.3 Price Update Mechanism
 
----
+Let a user buy $\Delta$ worth of $Y_i$ tokens.
 
-### 3.2 Privacy & Incentives
+New price:
 
-#### Private Pricing
+$$
+P_{Y_i}' = \frac{L_{Y_i}+\Delta}{L_{Y_i}} P_{Y_i}
+$$
 
-Unlike public prediction markets, **only the sponsor sees market prices and order flow in real time**.
-This prevents competitors from free-riding on the signal.
+$$
+P_{N_i}' = \frac{L_{N_i}}{L_{N_i}+\Delta} P_{N_i}
+$$
 
-To prevent traders from inferring prices from immediate feedback:
+where $P_{Y_i}$ and $P_{N_i}$ are pre-transaction prices.
 
-* Orders settle after an **opportunity window** (e.g., two weeks).
-* After the window, positions are revealed to traders, and optionally market prices can be made public for transparency.
-
----
-
-### 3.3 Confidential Bets with eERC
-
-To ensure that **no one (including competitors, external observers, or other traders) can see how much any participant is betting**, Sneak uses the **Encrypted ERC-20 (eERC)** standard from AvaCloud.
-
-#### Why eERC?
-
-* **Confidential transactions:** Trader balances and bet sizes remain hidden.
-* **Client-side privacy:** Encryption, decryption, and zk-proof generation happen locally, not via a trusted third party.
-* **Fully on-chain:** Works on Avalanche without relayers or off-chain actors.
-* **Auditable:** Supports external auditors for compliance if needed.
-
-#### Implementation in Sneak
-
-* Users convert AVAX → **Sneak-wrapped eERC** (converter mode).
-* All trades and liquidity provision occur in eERC.
-* This means **nobody can see which opportunity a user bet on, nor how much they bet**, preserving both financial privacy and information advantage.
+This mechanism maintains price symmetry and ensures that $P_{Y_i}+P_{N_i}=1$ is approximately preserved.
 
 ---
 
-### 3.4 Market Design Choices
+## 3. Position Chains
 
-* **Liquidity Provision:** Sponsors may use an AMM or order book with liquidity concentrated between certain probability ranges (e.g., 1%–30%).
-* **Unlimited vs. First-N Markets:**
+### 3.1 Definition
 
-  * *Unlimited:* Sponsor promises to pay out on all signings (trust-based).
-  * *First-N:* Fully collateralized markets that only pay out on the first N opportunities (permissionless, more trust-minimized).
-* **Anti-Exploitation Measures:**
+A **position chain** is a directed sequence of positions across opportunities:
 
-  * Sponsors commit to never selling into their own markets.
-  * Profits are recycled into liquidity or redistributed to traders.
-  * Final trades and resolutions may be revealed post-event for transparency.
+$$
+C = [(O_1, side_1, amt_1), (O_2, side_2, amt_2), ... , (O_k, side_k, amt_k)]
+$$
+
+where:
+
+- $side_i \in \{Y, N\}$
+- $amt_i$ is the value allocated from the previous position.
+
+Example:
+
+> Buy YES(Katseye) → Use resulting value as collateral to buy NO(Seedhemaut)
+
+### 3.2 Chain Leverage
+
+Each link in the chain is collateralized by the previous link’s current market value. This allows nested speculation:
+
+- If $Y_1$ appreciates, user gains additional collateral to open further positions.
+- If $Y_1$ collapses, all dependent positions downstream are liquidated.
+
+### 3.3 Recursive Liquidation
+
+Given chain $C$, define resolution function:
+
+```
+resolve(C):
+  for i in range(len(C)):
+    if outcome(C[i]) = LOSE:
+       zero_out(C[i:])
+       break
+    else if outcome(C[i]) = WIN:
+       distribute_payout(C[i])
+       break_chain(C, i)
+```
+
+where `zero_out` sets downstream positions to zero, and `break_chain` creates new independent chains from remaining collateral.
+
+### 3.4 Collateralization & Liquidation
+
+We require over-collateralization at each chain link to protect downstream positions.
+
+Definitions:
+
+- Let \(\alpha \in (0,1)\) be the allocation factor (e.g., \(\alpha = 0.8\)). When a link \(i\) is opened, at most an \(\alpha\) fraction of the current mark value of the previous link \(i-1\) may be allocated to it.
+- Let \(V\_{i}(t)\) be the current USD mark value of link \(i\) at time \(t\) (based on AMM mid or oracle TWAP).
+- Let \(A*{i}\) be the fixed amount that was actually allocated from link \(i-1\) to open link \(i\) at creation time: \(A_i = \alpha \cdot V*{i-1}(t\_{\text{open}})\).
+- Initial over-collateralization headroom is \((1-\alpha)\cdot V*{i-1}(t*{\text{open}})\).
+
+Debt and interest:
+
+- Let \(\text{LTV} \in (0,1)\) be the max loan-to-value used for allocation (often \(\text{LTV}=\alpha\); examples below use 60%).
+- Let \(r\) be a per-link interest rate and \(F\) an optional fixed fee per downstream link. The debt to repay for link \(i\) is:
+
+\[
+D_i = A_i \cdot (1 + r) + F.
+\]
+
+- Maintenance requirement (per link): \(V\_{i-1}(t) \ge D_i\) (with hysteresis \(\tau\)).
+
+Trigger:
+
+- If for some smallest index \(j\ge 2\), \(V\_{j-1}(t) < D_j\), then link \(j\) and all downstream links \(j..k\) become under-collateralized and must be liquidated.
+- To avoid flip-flop near the boundary, we use hysteresis \(\tau\) (e.g., 1%). Liquidation triggers when \(V*{j-1}(t) < (1-\tau)\cdot D_j\) and only clears when \(V*{j-1}(t) > (1+\tau)\cdot D_j\).
+
+Process (single chain):
+
+1. Identify the minimal violating index \(j\).
+2. Freeze new downstream openings for this chain.
+3. Unwind positions for indices \(i = k, k-1, ..., j\) into base using current AMM prices (or a protected close mechanism) to repay exposure.
+4. Apply a liquidation incentive/penalty (e.g., \(\gamma\)% of recovered value) to liquidators; any shortfall is first absorbed by the per-link buffer, then by insurance if configured.
+5. Preserve the prefix \(0..j-1\); the user keeps remaining value at link \(j-1\).
+
+Example:
+
+- User opens link 1 with \$10 of YES(\(O_1\)). With \(\alpha=0.8\), they may allocate at most \$8 to link 2.
+- If \(V_1\) falls below \$8 (or \$(1-\tau)\cdot 8\) with hysteresis), link 2 (and any links after it) are liquidated. Link 1 remains open with its current value after unwind costs.
+
+Notes:
+
+- Collateral marks should use manipulation-resistant prices (e.g., TWAPs) and may include per-opportunity haircuts.
+- Partial liquidation is optional: the protocol may either fully unwind \(j..k\) or reduce \(A*j\) until \(V*{j-1}\ge A_j\) again.
+- If a resolution event and a liquidation trigger occur in the same block, resolution is processed first; then collateralization is re-evaluated.
+
+#### 3.4.1 Numeric examples (policy: LTV = 60%, fixed fee \(F=\$5\) per downstream link)
+
+Example A — Two links, both win:
+
+- Start: deposit \$100 in \(O_1\) (link 1). With 60% LTV, allocate \(A_2 = \$60\) to \(O_2\) (link 2). Debt to repay: \(D_2 = A_2 + F = \$65\) (assuming \(r=0\)).
+- Suppose both links pay out for a total gross \$320. Net profit = \$320 − \$100 (initial) − \$65 (debt) = \$155.
+
+Example B — Two links, upstream falls to the debt boundary:
+
+- Start: \$100 in \(O_1\), \$60 allocated to \(O_2\), \(D_2=\$65\).
+- If \(V_1\) falls to \$65, liquidation triggers (post-hysteresis). The unwind repays \$65; user’s residual from link 1 is zero and downstream links are closed.
+
+Example C — Three links, chaining budget and sensitivity:
+
+- After opening link 2, suppose \(V_1=\$35\). With a fixed fee reserve \(F=\$5\), policy allows at most \~\$25 to chain again (illustrative cap). General budgeting for link 3 uses a policy function \(A_3 \le \min(\text{LTV}\cdot V_2, \text{policy\\\_cap})\).
+- With triple chaining, a small upstream drawdown (e.g., initial position dips to \$96) can violate \(V\_{i-1} < D_i\) on some downstream link and trigger full liquidation.
 
 ---
 
-## 4. Benefits
+## 4. Resolution & Payouts
 
-| Stakeholder  | Benefit                                                                          |
-| ------------ | -------------------------------------------------------------------------------- |
-| **Scouts**   | Monetize early insight, globally accessible mechanism, skin-in-the-game rewards. |
-| **Sponsors** | Receive early, private, actionable signals and reduce scouting costs.            |
-| **Market**   | More efficient discovery of high-leverage opportunities.                         |
+### 4.1 Resolution Event
+
+When opportunity $O_i$ resolves:
+
+- Winning side receives entire losing-side liquidity.
+- Liquidity provider receives initial deposit + 4% reward.
+- Protocol takes 1% fee.
+- Remaining winnings are distributed **pro-rata** to token holders.
+
+### 4.2 Formula
+
+Let:
+
+- $W_i$ = total winning side liquidity
+- $L_i$ = total losing side liquidity
+- $H_j$ = holding of user j
+
+Then payout per token:
+
+$$
+R_{token} = \frac{(W_i + L_i - LP_{reward} - ProtocolFee)}{\text{TotalWinningTokens}}
+$$
+
+User j’s payout:
+
+$$
+P_j = H_j * R_{token}
+$$
 
 ---
 
-## 5. Challenges
+## 5. Algorithmic Specification
 
-| Challenge                                 | Possible Mitigation                                                                    |
-| ----------------------------------------- | -------------------------------------------------------------------------------------- |
-| **Blind Trading (No Immediate Feedback)** | Allow partial position reveals or algorithmic trading agents.                          |
-| **Self-Dealing / Insider Abuse**          | Commit to no sell-side manipulation, use TEEs, make trade logs public post-resolution. |
-| **Liquidity Management**                  | Use bounded liquidity, dynamic incentive sizing, or First-N market structure.          |
-| **Regulatory Considerations**             | Use eERC’s auditor framework for compliance.                                           |
+### 5.1 Price Update Algorithm
+
+```
+function buy(opportunity, side, amount):
+    if side == YES:
+        opportunity.L_Y += amount
+        opportunity.P_Y = (opportunity.L_Y / (opportunity.L_Y - amount)) * opportunity.P_Y
+        opportunity.P_N = (opportunity.L_N / (opportunity.L_N + amount)) * opportunity.P_N
+    else:
+        ... (symmetric)
+```
+
+### 5.2 Chain Resolution Algorithm
+
+```
+function resolve_chain(chain):
+    for i from 0 to len(chain)-1:
+        outcome = get_outcome(chain[i].opportunity)
+        if outcome == chain[i].side:
+            payout = chain[i].amount * get_payout_rate(chain[i].opportunity)
+            chain[i].status = 'WIN'
+            chain[i].payout = payout
+            break_chain(chain, i)
+            break
+        else:
+            chain[i].status = 'LOSE'
+            zero_out(chain[i:])
+            break
+```
+
+### 5.3 Liquidation Monitoring & Execution
+
+```
+// alpha_open is the per-link allocation factor (e.g., 0.8)
+// mcr = 1.0 enforces V_{i-1} >= D_i; tau is hysteresis (e.g., 0.01)
+function monitor_and_liquidate(chain, alpha_open=0.8, mcr=1.0, tau=0.01):
+    // Precondition: chain[0] is funded; each chain[i>0] stores allocated_from_prev = A_i
+    for i from 1 to len(chain)-1:
+        collateral_value = mark_value(chain[i-1].opportunity, chain[i-1].side)
+        allocated = chain[i].allocated_from_prev  // A_i fixed at open
+        debt = compute_debt(allocated)            // D_i = A_i*(1+r) + F
+        threshold = debt * mcr * (1 - tau)
+        if collateral_value < threshold:
+            liquidate_downstream(chain, start_index=i)
+            break
+
+function liquidate_downstream(chain, start_index):
+    // Prevent new downstream links during unwind
+    freeze_new_downstream(chain)
+    for j from len(chain)-1 down to start_index:
+        unwind_position(chain[j])  // close into base via AMM/TWAP
+        apply_liquidation_penalty(chain[j])
+        chain[j].status = 'LIQUIDATED'
+    unfreeze_prefix(chain, prefix_end=start_index-1)
+
+function compute_debt(allocated):
+    // Example policy: flat fee F and optional rate r
+    return allocated * (1 + interest_rate()) + flat_fee()
+
+function next_link_allocation(current_value):
+    // Example policy: LTV * current_value minus reserved fee buffer
+    return max(0, LTV() * current_value - flat_fee())
+```
 
 ---
 
-## 6. Conclusion
+## 6. Edge Cases
 
-**Sneak** opens up a **new design space for private, incentive-aligned discovery of opportunities** across domains — music, sports, research, investing.
+- **Simultaneous Resolution:** If multiple opportunities in a chain resolve simultaneously, evaluation order follows chain index.
+- **Zero Liquidity:** If either $L_{Y_i}=0$ or $L_{N_i}=0$, trading is halted until external liquidity is added.
+- **Deep Chains:** Chains can be arbitrarily deep; gas optimization is needed for on-chain execution.
+- **Oracle Lag & Manipulation:** Use TWAPs and per-market haircuts for collateral marks; add circuit breakers around volatile moves.
+- **Hysteresis:** Apply \(\tau\) bands around thresholds to prevent rapid flip-flop liquidations.
+- **Partial vs Full Liquidation:** Implement either full unwind of \(j..k\) or partial reduction until \(V\_{j-1}\ge A_j\).
+- **Resolution vs Liquidation Ordering:** If both occur in the same block, process resolution first, then re-evaluate liquidation conditions.
 
-By combining **private prediction markets** with **privacy-preserving infrastructure like eERC**, Sneak enables:
+---
 
-* Confidential participation
-* Actionable institutional signals
-* Scalable, trust-minimized scouting
+## 7. Future Work
 
-We believe Sneak could become a core primitive for the future of **information finance**.
+- **Automated Hedging:** Allow users to automatically delta-hedge across YES/NO pairs.
+- **Cross-Opportunity AMM:** Allow trading YES(Op1) directly for YES(Op2) without returning to USD.
+- **Governance:** DAO-controlled listing of opportunities and fee parameters.
 
-<!-- If you’re interested in contributing liquidity, building tooling, or experimenting with new incentive designs, we’d love to collaborate. -->
+---
+
+## 8. Conclusion
+
+Sneak introduces a new financial primitive: the composable opportunity market. By enabling ERC-20 YES/NO tokens, collateralized position chaining, and deterministic recursive resolution, Sneak allows users to express complex market views, build hedged portfolios, and extract signal from collective betting behavior.
+
+This whitepaper serves as the technical foundation for the implementation of Sneak’s smart contracts and front-end interfaces.
