@@ -16,8 +16,9 @@ const useGetAllOpportunities = () => {
         address: process.env
             .NEXT_PUBLIC_SNEAK_PROTOCOL_ADDRESS as `0x${string}`,
         abi: contractAbi,
-        functionName: "getOpportunity",
+        functionName: "getOpportunities",
+        args: [],
     });
 };
 
-export { useGetOpportunity };
+export { useGetOpportunity, useGetAllOpportunities };

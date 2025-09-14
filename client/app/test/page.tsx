@@ -31,9 +31,9 @@ const Page = () => {
             </div>
 
             <div>
-                <button onClick={() => console.log("Opportunity")}>
+                {/* <button onClick={() => console.log(opportunity)}>
                     Log Opportunity
-                </button>
+                </button> */}
             </div>
 
             <div>

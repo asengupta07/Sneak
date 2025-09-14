@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
-import {
-    useGetChainsAtRisk,
-    useGetChainHealthData,
-    useGetLiquidationPreview,
-} from "../hooks/useSneakProtocolReads";
-import {
-    useExtendChain,
-    useLiquidateChain,
-} from "../hooks/useSneakProtocolWrites";
+// import {
+//     useGetChainsAtRisk,
+//     useGetChainHealthData,
+//     useGetLiquidationPreview,
+// } from "../hooks/useSneakProtocolReads";
+// import {
+//     useExtendChain,
+//     useLiquidateChain,
+// } from "../hooks/useSneakProtocolWrites";
 import {
     Search,
     Filter,
@@ -29,33 +29,30 @@ import {
     MoreVertical,
     AlertCircle,
 } from "lucide-react";
+import { useGetAllOpportunities } from "@/hooks/getOpportunity";
+import { formatEther } from "viem";
 
 interface Opportunity {
     id: string;
-    title: string;
-    description: string;
-    category: string;
-    status: "active" | "resolved" | "pending" | "cancelled";
-    outcome?: "yes" | "no" | null;
-    resolutionDate: string;
-    initialLiquidity: number;
-    currentLiquidity: number;
-    yesPrice: number;
-    noPrice: number;
-    totalVolume: number;
-    participants: number;
-    images: string[];
-    banners: string[];
-    isCreator: boolean;
-    createdAt: string;
-    resolvedAt?: string;
+    name: string;
+    metadataUrl: string;
+    liquidityYes: number;
+    liquidityNo: number;
+    priceYes: number;
+    priceNo: number;
+    creator: string;
+    resolved: boolean;
+    outcome: boolean;
+    totalYesTokens: number;
+    totalNoTokens: number;
+    creationTime: number;
 }
 
 export default function OpportunitiesDashboard() {
     const router = useRouter();
-    const { data: chainsAtRisk } = useGetChainsAtRisk();
-    const extendChain = useExtendChain();
-    const liquidateChain = useLiquidateChain();
+    // const { data: chainsAtRisk } = useGetChainsAtRisk();
+    // const extendChain = useExtendChain();
+    // const liquidateChain = useLiquidateChain();
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
     const [filteredOpportunities, setFilteredOpportunities] = useState<
         Opportunity[]
@@ -72,72 +69,17 @@ export default function OpportunitiesDashboard() {
         null
     );
 
+    // Get opportunities data
+    const { data: opps } = useGetAllOpportunities();
+
     // Mock data - replace with actual API calls
     useEffect(() => {
-        const mockOpportunities: Opportunity[] = [
-            {
-                id: "1",
-                title: "Will Bitcoin reach $100k by end of 2024?",
-                description:
-                    "This opportunity speculates on Bitcoin's price reaching $100,000 USD by December 31, 2024.",
-                category: "Crypto",
-                status: "active",
-                resolutionDate: "2024-12-31T23:59:59Z",
-                initialLiquidity: 10,
-                currentLiquidity: 25.5,
-                yesPrice: 0.65,
-                noPrice: 0.35,
-                totalVolume: 150.2,
-                participants: 45,
-                images: ["/api/placeholder/300/200"],
-                banners: ["/api/placeholder/600/200"],
-                isCreator: true,
-                createdAt: "2024-01-15T10:30:00Z",
-            },
-            {
-                id: "2",
-                title: "Will OpenAI release GPT-5 in 2024?",
-                description:
-                    "Speculation on whether OpenAI will publicly release GPT-5 before the end of 2024.",
-                category: "Technology",
-                status: "resolved",
-                outcome: "yes",
-                resolutionDate: "2024-06-30T23:59:59Z",
-                initialLiquidity: 5,
-                currentLiquidity: 0,
-                yesPrice: 1.0,
-                noPrice: 0.0,
-                totalVolume: 89.7,
-                participants: 32,
-                images: ["/api/placeholder/300/200"],
-                banners: ["/api/placeholder/600/200"],
-                isCreator: false,
-                createdAt: "2024-01-10T14:20:00Z",
-                resolvedAt: "2024-06-15T16:45:00Z",
-            },
-            {
-                id: "3",
-                title: "Will the US have a recession in 2024?",
-                description:
-                    "Economic speculation on whether the US will enter a technical recession in 2024.",
-                category: "Finance",
-                status: "active",
-                resolutionDate: "2024-12-31T23:59:59Z",
-                initialLiquidity: 15,
-                currentLiquidity: 42.3,
-                yesPrice: 0.42,
-                noPrice: 0.58,
-                totalVolume: 203.8,
-                participants: 78,
-                images: ["/api/placeholder/300/200"],
-                banners: ["/api/placeholder/600/200"],
-                isCreator: true,
-                createdAt: "2024-02-01T09:15:00Z",
-            },
-        ];
-        setOpportunities(mockOpportunities);
-        setFilteredOpportunities(mockOpportunities);
-    }, []);
+        if (opps) {
+            console.log(opps);
+            setOpportunities(opps as Opportunity[]);
+            setFilteredOpportunities(opps as Opportunity[]);
+        }
+    }, [opps]);
 
     // Filter and search logic
     useEffect(() => {
@@ -147,28 +89,29 @@ export default function OpportunitiesDashboard() {
         if (searchTerm) {
             filtered = filtered.filter(
                 (opp) =>
-                    opp.title
+                    opp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    opp.metadataUrl
                         .toLowerCase()
                         .includes(searchTerm.toLowerCase()) ||
-                    opp.description
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                    opp.category
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase())
+                    opp.creator.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
         // Status filter
         if (statusFilter !== "all") {
-            filtered = filtered.filter((opp) => opp.status === statusFilter);
+            filtered = filtered.filter((opp) => {
+                if (statusFilter === "active") {
+                    return !opp.resolved;
+                } else if (statusFilter === "resolved") {
+                    return opp.resolved;
+                }
+                return true;
+            });
         }
 
         // Category filter
         if (categoryFilter !== "all") {
-            filtered = filtered.filter(
-                (opp) => opp.category === categoryFilter
-            );
+            filtered = filtered.filter((opp) => opp.creator === categoryFilter);
         }
 
         // Sort
@@ -176,28 +119,28 @@ export default function OpportunitiesDashboard() {
             let aValue, bValue;
             switch (sortBy) {
                 case "title":
-                    aValue = a.title;
-                    bValue = b.title;
+                    aValue = a.name;
+                    bValue = b.name;
                     break;
                 case "createdAt":
-                    aValue = new Date(a.createdAt).getTime();
-                    bValue = new Date(b.createdAt).getTime();
+                    aValue = new Date(Number(a.creationTime)).getTime();
+                    bValue = new Date(Number(b.creationTime)).getTime();
                     break;
                 case "resolutionDate":
-                    aValue = new Date(a.resolutionDate).getTime();
-                    bValue = new Date(b.resolutionDate).getTime();
+                    aValue = new Date(Number(a.creationTime)).getTime();
+                    bValue = new Date(Number(b.creationTime)).getTime();
                     break;
                 case "liquidity":
-                    aValue = a.currentLiquidity;
-                    bValue = b.currentLiquidity;
+                    aValue = formatEther(BigInt(a.liquidityYes));
+                    bValue = formatEther(BigInt(b.liquidityYes));
                     break;
                 case "volume":
-                    aValue = a.totalVolume;
-                    bValue = b.totalVolume;
+                    aValue = formatEther(BigInt(a.totalYesTokens));
+                    bValue = formatEther(BigInt(b.totalYesTokens));
                     break;
                 default:
-                    aValue = a.createdAt;
-                    bValue = b.createdAt;
+                    aValue = formatEther(BigInt(a.creationTime));
+                    bValue = formatEther(BigInt(b.creationTime));
             }
 
             if (sortOrder === "asc") {
@@ -267,8 +210,8 @@ export default function OpportunitiesDashboard() {
                     opp.id === selectedOpportunity.id
                         ? {
                               ...opp,
-                              outcome: selectedOutcome,
-                              status: "resolved" as const,
+                              outcome: selectedOutcome === "yes",
+                              resolved: true,
                               resolvedAt: new Date().toISOString(),
                           }
                         : opp
@@ -363,7 +306,7 @@ export default function OpportunitiesDashboard() {
                                 <p className="text-2xl font-bold text-green-400">
                                     {
                                         opportunities.filter(
-                                            (opp) => opp.status === "active"
+                                            (opp) => opp.resolved === false
                                         ).length
                                     }
                                 </p>
@@ -379,13 +322,18 @@ export default function OpportunitiesDashboard() {
                                     Total Volume
                                 </p>
                                 <p className="text-2xl font-bold text-white">
-                                    {opportunities
-                                        .reduce(
-                                            (sum, opp) => sum + opp.totalVolume,
+                                    {(
+                                        opportunities.reduce(
+                                            (sum, opp) =>
+                                                sum +
+                                                Number(
+                                                    opp.liquidityYes +
+                                                        opp.liquidityNo
+                                                ),
                                             0
-                                        )
-                                        .toFixed(1)}{" "}
-                                    ETH
+                                        ) / Math.pow(10, 18)
+                                    ).toFixed(1)}{" "}
+                                    USDC
                                 </p>
                             </div>
                             <DollarSign className="w-8 h-8 text-orange-500" />
@@ -400,7 +348,13 @@ export default function OpportunitiesDashboard() {
                                 </p>
                                 <p className="text-2xl font-bold text-white">
                                     {opportunities.reduce(
-                                        (sum, opp) => sum + opp.participants,
+                                        (sum, opp) =>
+                                            Number(sum) +
+                                            Number(
+                                                opp.totalYesTokens +
+                                                    opp.totalNoTokens
+                                            ) /
+                                                Math.pow(10, 18),
                                         0
                                     )}
                                 </p>
@@ -417,7 +371,7 @@ export default function OpportunitiesDashboard() {
                             Chains At Risk
                         </h3>
                     </div>
-                    {Array.isArray(chainsAtRisk?.result) &&
+                    {/* {Array.isArray(chainsAtRisk?.result) &&
                         chainsAtRisk.result.length === 0 && (
                             <p className="text-gray-400">No chains at risk.</p>
                         )}
@@ -431,7 +385,7 @@ export default function OpportunitiesDashboard() {
                                     onLiquidate={liquidateChain}
                                 />
                             ))}
-                    </div>
+                    </div> */}
                 </div>
                 {/* Chains At Risk */}
                 <div className="bg-gray-900/50 border border-orange-500/20 rounded-xl p-6 mb-8">
@@ -440,7 +394,7 @@ export default function OpportunitiesDashboard() {
                             Chains At Risk
                         </h3>
                     </div>
-                    {Array.isArray((chainsAtRisk as any)?.result) &&
+                    {/* {Array.isArray((chainsAtRisk as any)?.result) &&
                         (chainsAtRisk as any).result.length === 0 && (
                             <p className="text-gray-400">No chains at risk.</p>
                         )}
@@ -456,7 +410,7 @@ export default function OpportunitiesDashboard() {
                                     />
                                 )
                             )}
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Filters and Search */}
@@ -565,24 +519,23 @@ export default function OpportunitiesDashboard() {
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex-1">
                                     <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
-                                        {opportunity.title}
+                                        {opportunity.name}
                                     </h3>
                                     <div className="flex items-center space-x-2 mb-2">
                                         <span
-                                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                                opportunity.status
-                                            )}`}
+                                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                opportunity.resolved
+                                                    ? "bg-gray-600 text-gray-200"
+                                                    : "bg-green-600 text-green-200"
+                                            }`}
                                         >
-                                            {opportunity.status}
+                                            {opportunity.resolved
+                                                ? "Resolved"
+                                                : "Active"}
                                         </span>
                                         <span className="text-gray-400 text-sm">
-                                            {opportunity.category}
+                                            ID: {opportunity.id}
                                         </span>
-                                        {opportunity.isCreator && (
-                                            <span className="text-orange-400 text-xs font-medium">
-                                                CREATOR
-                                            </span>
-                                        )}
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-1">
@@ -595,36 +548,35 @@ export default function OpportunitiesDashboard() {
 
                             {/* Description */}
                             <p className="text-gray-300 text-sm mb-4 line-clamp-2">
-                                {opportunity.description}
+                                Metadata:{" "}
+                                {opportunity.imageUrl ||
+                                    "No metadata available"}
                             </p>
 
                             {/* Stats */}
                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <p className="text-gray-400 text-xs">
-                                        Liquidity
+                                        Total Liquidity
                                     </p>
                                     <p className="text-white font-semibold">
-                                        {opportunity.currentLiquidity.toFixed(
-                                            2
-                                        )}{" "}
-                                        ETH
+                                        {(
+                                            (Number(opportunity.liquidityYes) +
+                                                Number(
+                                                    opportunity.liquidityNo
+                                                )) /
+                                            Math.pow(10, 18)
+                                        ).toFixed(2)}{" "}
+                                        USDC
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-gray-400 text-xs">
-                                        Volume
+                                        Total Tokens
                                     </p>
                                     <p className="text-white font-semibold">
-                                        {opportunity.totalVolume.toFixed(1)} ETH
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-400 text-xs">
-                                        Participants
-                                    </p>
-                                    <p className="text-white font-semibold">
-                                        {opportunity.participants}
+                                        {Number(opportunity.totalYesTokens) +
+                                            Number(opportunity.totalNoTokens)}
                                     </p>
                                 </div>
                                 <div>
@@ -632,19 +584,32 @@ export default function OpportunitiesDashboard() {
                                         YES Price
                                     </p>
                                     <p className="text-white font-semibold">
-                                        {(opportunity.yesPrice * 100).toFixed(
-                                            1
-                                        )}
-                                        %
+                                        {(
+                                            Number(opportunity.priceYes) /
+                                            Math.pow(10, 18)
+                                        ).toFixed(3)}{" "}
+                                        USDC
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-400 text-xs">
+                                        NO Price
+                                    </p>
+                                    <p className="text-white font-semibold">
+                                        {(
+                                            Number(opportunity.priceNo) /
+                                            Math.pow(10, 18)
+                                        ).toFixed(3)}{" "}
+                                        USDC
                                     </p>
                                 </div>
                             </div>
 
-                            {/* Resolution Date */}
+                            {/* Creation Time */}
                             <div className="flex items-center text-gray-400 text-sm mb-4">
                                 <Calendar className="w-4 h-4 mr-2" />
                                 {new Date(
-                                    opportunity.resolutionDate
+                                    Number(opportunity.creationTime) * 1000
                                 ).toLocaleDateString()}
                             </div>
 
@@ -764,7 +729,7 @@ export default function OpportunitiesDashboard() {
                         </h3>
                         <p className="text-gray-300 mb-6">
                             Are you sure you want to set the outcome of "
-                            {selectedOpportunity.title}" to{" "}
+                            {selectedOpportunity.name}" to{" "}
                             <span
                                 className={`font-semibold ${
                                     selectedOutcome === "yes"
@@ -818,8 +783,8 @@ function ChainCard({
     ) => Promise<any>;
     onLiquidate: (chainId: bigint) => Promise<any>;
 }) {
-    const { data: health } = useGetChainHealthData(chainId as any);
-    const { data: preview } = useGetLiquidationPreview(chainId as any);
+    // const { data: health } = useGetChainHealthData(chainId as any);
+    // const { data: preview } = useGetLiquidationPreview(chainId as any);
     const [opportunityId, setOpportunityId] = useState<string>("");
     const [side, setSide] = useState<"yes" | "no">("yes");
     const [isBusy, setIsBusy] = useState(false);
@@ -848,9 +813,9 @@ function ChainCard({
         }
     };
 
-    const canLiquidate = Boolean(
-        (preview as any)?.result?.canLiquidate ?? false
-    );
+    // const canLiquidate = Boolean(
+    //       (preview as any)?.result?.canLiquidate ?? false
+    // );
 
     return (
         <div className="bg-gray-800/50 rounded-lg p-4 border border-orange-500/10">
@@ -858,7 +823,7 @@ function ChainCard({
                 <p className="text-white font-semibold">
                     Chain #{String(chainId)}
                 </p>
-                <span
+                {/* <span
                     className={`text-xs px-2 py-1 rounded ${
                         (health as any)?.result?.isLiquidationRisk
                             ? "bg-red-500/20 text-red-400"
@@ -868,9 +833,9 @@ function ChainCard({
                     {(health as any)?.result?.isLiquidationRisk
                         ? "At Risk"
                         : "Healthy"}
-                </span>
+                </span> */}
             </div>
-            <div className="text-sm text-gray-400 mb-4">
+            {/* <div className="text-sm text-gray-400 mb-4">
                 <p>
                     Total Positions:{" "}
                     {String(
@@ -881,7 +846,7 @@ function ChainCard({
                     Health Factor:{" "}
                     {String((health as any)?.result?.healthFactor ?? BigInt(0))}
                 </p>
-            </div>
+            </div> */}
             <div className="grid grid-cols-2 gap-2 mb-3">
                 <input
                     type="number"
@@ -908,7 +873,7 @@ function ChainCard({
                     Extend Chain
                 </button>
                 <button
-                    disabled={isBusy || !canLiquidate}
+                    // disabled={isBusy || !canLiquidate}
                     onClick={handleLiquidate}
                     className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded px-3 py-2 text-sm"
                 >
