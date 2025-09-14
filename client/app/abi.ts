@@ -1,1280 +1,1280 @@
 export const contractAbi = [
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "_baseToken",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "_baseToken",
+                "type": "address"
+            }
         ],
-        stateMutability: "nonpayable",
-        type: "constructor",
+        "stateMutability": "nonpayable",
+        "type": "constructor"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            }
         ],
-        name: "OwnableInvalidOwner",
-        type: "error",
+        "name": "OwnableInvalidOwner",
+        "type": "error"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "account",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
         ],
-        name: "OwnableUnauthorizedAccount",
-        type: "error",
+        "name": "OwnableUnauthorizedAccount",
+        "type": "error"
     },
     {
-        inputs: [],
-        name: "ReentrancyGuardReentrantCall",
-        type: "error",
+        "inputs": [],
+        "name": "ReentrancyGuardReentrantCall",
+        "type": "error"
     },
     {
-        anonymous: false,
-        inputs: [
+        "anonymous": false,
+        "inputs": [
             {
-                indexed: true,
-                internalType: "uint256",
-                name: "chainId",
-                type: "uint256",
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "chainId",
+                "type": "uint256"
             },
             {
-                indexed: true,
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            }
         ],
-        name: "ChainCreated",
-        type: "event",
+        "name": "ChainCreated",
+        "type": "event"
     },
     {
-        anonymous: false,
-        inputs: [
+        "anonymous": false,
+        "inputs": [
             {
-                indexed: true,
-                internalType: "uint256",
-                name: "chainId",
-                type: "uint256",
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "chainId",
+                "type": "uint256"
             },
             {
-                indexed: false,
-                internalType: "uint256",
-                name: "opportunityId",
-                type: "uint256",
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "opportunityId",
+                "type": "uint256"
             },
             {
-                indexed: false,
-                internalType: "bool",
-                name: "side",
-                type: "bool",
+                "indexed": false,
+                "internalType": "bool",
+                "name": "side",
+                "type": "bool"
             },
             {
-                indexed: false,
-                internalType: "uint256",
-                name: "amount",
-                type: "uint256",
-            },
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
         ],
-        name: "ChainExtended",
-        type: "event",
+        "name": "ChainExtended",
+        "type": "event"
     },
     {
-        anonymous: false,
-        inputs: [
+        "anonymous": false,
+        "inputs": [
             {
-                indexed: true,
-                internalType: "uint256",
-                name: "chainId",
-                type: "uint256",
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "chainId",
+                "type": "uint256"
             },
             {
-                indexed: false,
-                internalType: "uint256",
-                name: "startIndex",
-                type: "uint256",
-            },
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "startIndex",
+                "type": "uint256"
+            }
         ],
-        name: "ChainLiquidated",
-        type: "event",
+        "name": "ChainLiquidated",
+        "type": "event"
     },
     {
-        anonymous: false,
-        inputs: [
+        "anonymous": false,
+        "inputs": [
             {
-                indexed: true,
-                internalType: "uint256",
-                name: "opportunityId",
-                type: "uint256",
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "opportunityId",
+                "type": "uint256"
             },
             {
-                indexed: false,
-                internalType: "string",
-                name: "name",
-                type: "string",
+                "indexed": false,
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
             },
             {
-                indexed: false,
-                internalType: "string",
-                name: "imageUrl",
-                type: "string",
+                "indexed": false,
+                "internalType": "string",
+                "name": "imageUrl",
+                "type": "string"
             },
             {
-                indexed: false,
-                internalType: "uint256",
-                name: "initialLiquidity",
-                type: "uint256",
-            },
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "initialLiquidity",
+                "type": "uint256"
+            }
         ],
-        name: "OpportunityCreated",
-        type: "event",
+        "name": "OpportunityCreated",
+        "type": "event"
     },
     {
-        anonymous: false,
-        inputs: [
+        "anonymous": false,
+        "inputs": [
             {
-                indexed: true,
-                internalType: "uint256",
-                name: "opportunityId",
-                type: "uint256",
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "opportunityId",
+                "type": "uint256"
             },
             {
-                indexed: false,
-                internalType: "bool",
-                name: "outcome",
-                type: "bool",
-            },
+                "indexed": false,
+                "internalType": "bool",
+                "name": "outcome",
+                "type": "bool"
+            }
         ],
-        name: "OpportunityResolved",
-        type: "event",
+        "name": "OpportunityResolved",
+        "type": "event"
     },
     {
-        anonymous: false,
-        inputs: [
+        "anonymous": false,
+        "inputs": [
             {
-                indexed: true,
-                internalType: "address",
-                name: "previousOwner",
-                type: "address",
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
             },
             {
-                indexed: true,
-                internalType: "address",
-                name: "newOwner",
-                type: "address",
-            },
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
         ],
-        name: "OwnershipTransferred",
-        type: "event",
+        "name": "OwnershipTransferred",
+        "type": "event"
     },
     {
-        anonymous: false,
-        inputs: [
+        "anonymous": false,
+        "inputs": [
             {
-                indexed: true,
-                internalType: "uint256",
-                name: "opportunityId",
-                type: "uint256",
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "opportunityId",
+                "type": "uint256"
             },
             {
-                indexed: true,
-                internalType: "address",
-                name: "user",
-                type: "address",
+                "indexed": true,
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
             },
             {
-                indexed: false,
-                internalType: "bool",
-                name: "side",
-                type: "bool",
+                "indexed": false,
+                "internalType": "bool",
+                "name": "side",
+                "type": "bool"
             },
             {
-                indexed: false,
-                internalType: "uint256",
-                name: "amount",
-                type: "uint256",
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
             },
             {
-                indexed: false,
-                internalType: "uint256",
-                name: "tokens",
-                type: "uint256",
-            },
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokens",
+                "type": "uint256"
+            }
         ],
-        name: "TokensPurchased",
-        type: "event",
+        "name": "TokensPurchased",
+        "type": "event"
     },
     {
-        inputs: [],
-        name: "BASIS_POINTS",
-        outputs: [
+        "inputs": [],
+        "name": "BASIS_POINTS",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "FIXED_FEE",
-        outputs: [
+        "inputs": [],
+        "name": "FIXED_FEE",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "HYSTERESIS",
-        outputs: [
+        "inputs": [],
+        "name": "HYSTERESIS",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "INITIAL_PRICE",
-        outputs: [
+        "inputs": [],
+        "name": "INITIAL_PRICE",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "INTEREST_RATE",
-        outputs: [
+        "inputs": [],
+        "name": "INTEREST_RATE",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "LIQUIDATION_PENALTY",
-        outputs: [
+        "inputs": [],
+        "name": "LIQUIDATION_PENALTY",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "LP_REWARD_RATE",
-        outputs: [
+        "inputs": [],
+        "name": "LP_REWARD_RATE",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "LTV",
-        outputs: [
+        "inputs": [],
+        "name": "LTV",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "PROTOCOL_FEE_RATE",
-        outputs: [
+        "inputs": [],
+        "name": "PROTOCOL_FEE_RATE",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "baseToken",
-        outputs: [
+        "inputs": [],
+        "name": "baseToken",
+        "outputs": [
             {
-                internalType: "contract IERC20",
-                name: "",
-                type: "address",
-            },
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
             },
             {
-                internalType: "bool",
-                name: "_side",
-                type: "bool",
+                "internalType": "bool",
+                "name": "_side",
+                "type": "bool"
             },
             {
-                internalType: "uint256",
-                name: "_amount",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
         ],
-        name: "buyTokens",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "buyTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
+            }
         ],
-        name: "claimWinnings",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "claimWinnings",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "string",
-                name: "_name",
-                type: "string",
+                "internalType": "string",
+                "name": "_name",
+                "type": "string"
             },
             {
-                internalType: "string",
-                name: "_metadataUrl",
-                type: "string",
+                "internalType": "string",
+                "name": "_metadataUrl",
+                "type": "string"
             },
             {
-                internalType: "uint256",
-                name: "_initialLiquidity",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_initialLiquidity",
+                "type": "uint256"
+            }
         ],
-        name: "createOpportunity",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "createOpportunity",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
             },
             {
-                internalType: "bool",
-                name: "_side",
-                type: "bool",
+                "internalType": "bool",
+                "name": "_side",
+                "type": "bool"
             },
             {
-                internalType: "uint256",
-                name: "_amount",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
         ],
-        name: "createPositionChain",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "createPositionChain",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_chainId",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "_chainId",
+                "type": "uint256"
             },
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
             },
             {
-                internalType: "bool",
-                name: "_side",
-                type: "bool",
-            },
+                "internalType": "bool",
+                "name": "_side",
+                "type": "bool"
+            }
         ],
-        name: "extendChain",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "extendChain",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_chainId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_chainId",
+                "type": "uint256"
+            }
         ],
-        name: "getChainHealthData",
-        outputs: [
+        "name": "getChainHealthData",
+        "outputs": [
             {
-                components: [
+                "components": [
                     {
-                        internalType: "uint256",
-                        name: "chainId",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "chainId",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "address",
-                        name: "owner",
-                        type: "address",
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
                     },
                     {
-                        internalType: "uint256",
-                        name: "totalPositions",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "totalPositions",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "activePositions",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "activePositions",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "liquidatedPositions",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "liquidatedPositions",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "totalAllocated",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "totalAllocated",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "currentTotalValue",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "currentTotalValue",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "totalDebt",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "totalDebt",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "healthFactor",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "healthFactor",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "isLiquidationRisk",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "isLiquidationRisk",
+                        "type": "bool"
                     },
                     {
-                        internalType: "bool",
-                        name: "isHighRisk",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "isHighRisk",
+                        "type": "bool"
                     },
                     {
-                        internalType: "uint256",
-                        name: "liquidationThreshold",
-                        type: "uint256",
-                    },
+                        "internalType": "uint256",
+                        "name": "liquidationThreshold",
+                        "type": "uint256"
+                    }
                 ],
-                internalType: "struct SneakProtocol.ChainHealthData",
-                name: "",
-                type: "tuple",
-            },
+                "internalType": "struct SneakProtocol.ChainHealthData",
+                "name": "",
+                "type": "tuple"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_chainId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_chainId",
+                "type": "uint256"
+            }
         ],
-        name: "getChainRiskAnalysis",
-        outputs: [
+        "name": "getChainRiskAnalysis",
+        "outputs": [
             {
-                components: [
+                "components": [
                     {
-                        internalType: "uint256",
-                        name: "positionIndex",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "positionIndex",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "opportunityId",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "opportunityId",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "side",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "side",
+                        "type": "bool"
                     },
                     {
-                        internalType: "uint256",
-                        name: "allocatedAmount",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "allocatedAmount",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "currentValue",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "currentValue",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "pnl",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "pnl",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "isActive",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "isActive",
+                        "type": "bool"
                     },
                     {
-                        internalType: "uint256",
-                        name: "riskToNextPosition",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "riskToNextPosition",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "isLiquidationTrigger",
-                        type: "bool",
-                    },
+                        "internalType": "bool",
+                        "name": "isLiquidationTrigger",
+                        "type": "bool"
+                    }
                 ],
-                internalType: "struct SneakProtocol.PositionRiskData[]",
-                name: "",
-                type: "tuple[]",
-            },
+                "internalType": "struct SneakProtocol.PositionRiskData[]",
+                "name": "",
+                "type": "tuple[]"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "getChainsAtRisk",
-        outputs: [
+        "inputs": [],
+        "name": "getChainsAtRisk",
+        "outputs": [
             {
-                internalType: "uint256[]",
-                name: "",
-                type: "uint256[]",
-            },
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                components: [
+                "components": [
                     {
-                        internalType: "uint256",
-                        name: "opportunityId",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "opportunityId",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "side",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "side",
+                        "type": "bool"
                     },
                     {
-                        internalType: "uint256",
-                        name: "amount",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "tokens",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "tokens",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "currentValue",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "currentValue",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "active",
-                        type: "bool",
-                    },
+                        "internalType": "bool",
+                        "name": "active",
+                        "type": "bool"
+                    }
                 ],
-                internalType: "struct SneakProtocol.Position",
-                name: "_position",
-                type: "tuple",
-            },
+                "internalType": "struct SneakProtocol.Position",
+                "name": "_position",
+                "type": "tuple"
+            }
         ],
-        name: "getCurrentPositionValue",
-        outputs: [
+        "name": "getCurrentPositionValue",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_chainId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_chainId",
+                "type": "uint256"
+            }
         ],
-        name: "getLiquidationPreview",
-        outputs: [
+        "name": "getLiquidationPreview",
+        "outputs": [
             {
-                components: [
+                "components": [
                     {
-                        internalType: "bool",
-                        name: "canLiquidate",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "canLiquidate",
+                        "type": "bool"
                     },
                     {
-                        internalType: "uint256",
-                        name: "liquidationStartIndex",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "liquidationStartIndex",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "positionsToLiquidate",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "positionsToLiquidate",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "collateralShortfall",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "collateralShortfall",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "liquidationPenalty",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "liquidationPenalty",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "remainingValue",
-                        type: "uint256",
-                    },
+                        "internalType": "uint256",
+                        "name": "remainingValue",
+                        "type": "uint256"
+                    }
                 ],
-                internalType: "struct SneakProtocol.LiquidationPreview",
-                name: "",
-                type: "tuple",
-            },
+                "internalType": "struct SneakProtocol.LiquidationPreview",
+                "name": "",
+                "type": "tuple"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
+            }
         ],
-        name: "getOpportunity",
-        outputs: [
+        "name": "getOpportunity",
+        "outputs": [
             {
-                components: [
+                "components": [
                     {
-                        internalType: "uint256",
-                        name: "id",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "string",
-                        name: "name",
-                        type: "string",
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
                     },
                     {
-                        internalType: "string",
-                        name: "metadataUrl",
-                        type: "string",
+                        "internalType": "string",
+                        "name": "metadataUrl",
+                        "type": "string"
                     },
                     {
-                        internalType: "uint256",
-                        name: "liquidityYes",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "liquidityYes",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "liquidityNo",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "liquidityNo",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "priceYes",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "priceYes",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "priceNo",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "priceNo",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "address",
-                        name: "creator",
-                        type: "address",
+                        "internalType": "address",
+                        "name": "creator",
+                        "type": "address"
                     },
                     {
-                        internalType: "bool",
-                        name: "resolved",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "resolved",
+                        "type": "bool"
                     },
                     {
-                        internalType: "bool",
-                        name: "outcome",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "outcome",
+                        "type": "bool"
                     },
                     {
-                        internalType: "uint256",
-                        name: "totalYesTokens",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "totalYesTokens",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "totalNoTokens",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "totalNoTokens",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "creationTime",
-                        type: "uint256",
-                    },
+                        "internalType": "uint256",
+                        "name": "creationTime",
+                        "type": "uint256"
+                    }
                 ],
-                internalType: "struct SneakProtocol.Opportunity",
-                name: "",
-                type: "tuple",
-            },
+                "internalType": "struct SneakProtocol.Opportunity",
+                "name": "",
+                "type": "tuple"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
+            }
         ],
-        name: "getOpportunityRiskData",
-        outputs: [
+        "name": "getOpportunityRiskData",
+        "outputs": [
             {
-                components: [
+                "components": [
                     {
-                        internalType: "uint256",
-                        name: "opportunityId",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "opportunityId",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "string",
-                        name: "name",
-                        type: "string",
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
                     },
                     {
-                        internalType: "uint256",
-                        name: "priceYes",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "priceYes",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "priceNo",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "priceNo",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "priceDeviation",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "priceDeviation",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "liquidityImbalance",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "liquidityImbalance",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "uint256",
-                        name: "volatilityRisk",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "volatilityRisk",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "isHighRisk",
-                        type: "bool",
+                        "internalType": "bool",
+                        "name": "isHighRisk",
+                        "type": "bool"
                     },
                     {
-                        internalType: "uint256",
-                        name: "totalLiquidity",
-                        type: "uint256",
-                    },
+                        "internalType": "uint256",
+                        "name": "totalLiquidity",
+                        "type": "uint256"
+                    }
                 ],
-                internalType: "struct SneakProtocol.OpportunityRiskData",
-                name: "",
-                type: "tuple",
-            },
+                "internalType": "struct SneakProtocol.OpportunityRiskData",
+                "name": "",
+                "type": "tuple"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_chainId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_chainId",
+                "type": "uint256"
+            }
         ],
-        name: "getPositionChain",
-        outputs: [
+        "name": "getPositionChain",
+        "outputs": [
             {
-                components: [
+                "components": [
                     {
-                        internalType: "uint256",
-                        name: "chainId",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "chainId",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "address",
-                        name: "owner",
-                        type: "address",
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
                     },
                     {
-                        components: [
+                        "components": [
                             {
-                                internalType: "uint256",
-                                name: "opportunityId",
-                                type: "uint256",
+                                "internalType": "uint256",
+                                "name": "opportunityId",
+                                "type": "uint256"
                             },
                             {
-                                internalType: "bool",
-                                name: "side",
-                                type: "bool",
+                                "internalType": "bool",
+                                "name": "side",
+                                "type": "bool"
                             },
                             {
-                                internalType: "uint256",
-                                name: "amount",
-                                type: "uint256",
+                                "internalType": "uint256",
+                                "name": "amount",
+                                "type": "uint256"
                             },
                             {
-                                internalType: "uint256",
-                                name: "tokens",
-                                type: "uint256",
+                                "internalType": "uint256",
+                                "name": "tokens",
+                                "type": "uint256"
                             },
                             {
-                                internalType: "uint256",
-                                name: "currentValue",
-                                type: "uint256",
+                                "internalType": "uint256",
+                                "name": "currentValue",
+                                "type": "uint256"
                             },
                             {
-                                internalType: "bool",
-                                name: "active",
-                                type: "bool",
-                            },
+                                "internalType": "bool",
+                                "name": "active",
+                                "type": "bool"
+                            }
                         ],
-                        internalType: "struct SneakProtocol.Position[]",
-                        name: "positions",
-                        type: "tuple[]",
+                        "internalType": "struct SneakProtocol.Position[]",
+                        "name": "positions",
+                        "type": "tuple[]"
                     },
                     {
-                        internalType: "uint256",
-                        name: "totalDebt",
-                        type: "uint256",
+                        "internalType": "uint256",
+                        "name": "totalDebt",
+                        "type": "uint256"
                     },
                     {
-                        internalType: "bool",
-                        name: "liquidated",
-                        type: "bool",
-                    },
+                        "internalType": "bool",
+                        "name": "liquidated",
+                        "type": "bool"
+                    }
                 ],
-                internalType: "struct SneakProtocol.PositionChain",
-                name: "",
-                type: "tuple",
-            },
+                "internalType": "struct SneakProtocol.PositionChain",
+                "name": "",
+                "type": "tuple"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "_user",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "_user",
+                "type": "address"
+            }
         ],
-        name: "getUserChains",
-        outputs: [
+        "name": "getUserChains",
+        "outputs": [
             {
-                internalType: "uint256[]",
-                name: "",
-                type: "uint256[]",
-            },
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
             },
             {
-                internalType: "bool",
-                name: "_side",
-                type: "bool",
+                "internalType": "bool",
+                "name": "_side",
+                "type": "bool"
             },
             {
-                internalType: "address",
-                name: "_user",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "_user",
+                "type": "address"
+            }
         ],
-        name: "getUserTokens",
-        outputs: [
+        "name": "getUserTokens",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_chainId",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "_chainId",
+                "type": "uint256"
+            }
         ],
-        name: "liquidateChain",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "liquidateChain",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "nextChainId",
-        outputs: [
+        "inputs": [],
+        "name": "nextChainId",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "nextOpportunityId",
-        outputs: [
+        "inputs": [],
+        "name": "nextOpportunityId",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        name: "opportunities",
-        outputs: [
+        "name": "opportunities",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "id",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
             },
             {
-                internalType: "string",
-                name: "name",
-                type: "string",
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
             },
             {
-                internalType: "string",
-                name: "metadataUrl",
-                type: "string",
+                "internalType": "string",
+                "name": "metadataUrl",
+                "type": "string"
             },
             {
-                internalType: "uint256",
-                name: "liquidityYes",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "liquidityYes",
+                "type": "uint256"
             },
             {
-                internalType: "uint256",
-                name: "liquidityNo",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "liquidityNo",
+                "type": "uint256"
             },
             {
-                internalType: "uint256",
-                name: "priceYes",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "priceYes",
+                "type": "uint256"
             },
             {
-                internalType: "uint256",
-                name: "priceNo",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "priceNo",
+                "type": "uint256"
             },
             {
-                internalType: "address",
-                name: "creator",
-                type: "address",
+                "internalType": "address",
+                "name": "creator",
+                "type": "address"
             },
             {
-                internalType: "bool",
-                name: "resolved",
-                type: "bool",
+                "internalType": "bool",
+                "name": "resolved",
+                "type": "bool"
             },
             {
-                internalType: "bool",
-                name: "outcome",
-                type: "bool",
+                "internalType": "bool",
+                "name": "outcome",
+                "type": "bool"
             },
             {
-                internalType: "uint256",
-                name: "totalYesTokens",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "totalYesTokens",
+                "type": "uint256"
             },
             {
-                internalType: "uint256",
-                name: "totalNoTokens",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "totalNoTokens",
+                "type": "uint256"
             },
             {
-                internalType: "uint256",
-                name: "creationTime",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "creationTime",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "owner",
-        outputs: [
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
             {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        name: "positionChains",
-        outputs: [
+        "name": "positionChains",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "chainId",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "chainId",
+                "type": "uint256"
             },
             {
-                internalType: "address",
-                name: "owner",
-                type: "address",
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
             },
             {
-                internalType: "uint256",
-                name: "totalDebt",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "totalDebt",
+                "type": "uint256"
             },
             {
-                internalType: "bool",
-                name: "liquidated",
-                type: "bool",
-            },
+                "internalType": "bool",
+                "name": "liquidated",
+                "type": "bool"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
         ],
-        name: "protocolFees",
-        outputs: [
+        "name": "protocolFees",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [],
-        name: "renounceOwnership",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "_opportunityId",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "_opportunityId",
+                "type": "uint256"
             },
             {
-                internalType: "bool",
-                name: "_outcome",
-                type: "bool",
-            },
+                "internalType": "bool",
+                "name": "_outcome",
+                "type": "bool"
+            }
         ],
-        name: "resolveOpportunity",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "resolveOpportunity",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "newOwner",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
         ],
-        name: "transferOwnership",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "",
-                type: "address",
+                "internalType": "address",
+                "name": "",
+                "type": "address"
             },
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        name: "userChains",
-        outputs: [
+        "name": "userChains",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             },
             {
-                internalType: "bool",
-                name: "",
-                type: "bool",
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
             },
             {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
         ],
-        name: "userTokens",
-        outputs: [
+        "name": "userTokens",
+        "outputs": [
             {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
         ],
-        stateMutability: "view",
-        type: "function",
+        "stateMutability": "view",
+        "type": "function"
     },
     {
-        inputs: [
+        "inputs": [
             {
-                internalType: "address",
-                name: "_token",
-                type: "address",
-            },
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            }
         ],
-        name: "withdrawProtocolFees",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
+        "name": "withdrawProtocolFees",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
 ];
 
 export const musdcAbi = [

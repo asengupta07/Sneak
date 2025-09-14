@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract SneakProtocol is Ownable, ReentrancyGuard {
     // Constants
-    uint256 public constant INITIAL_PRICE = 50; // 0.5 USD in basis points (50/100)
+    uint256 public constant INITIAL_PRICE = 0.5 * 10 ** 18; // 0.5 USD in basis points (50/100)
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant LTV = 6000; // 60% LTV in basis points
     uint256 public constant FIXED_FEE = 5 * 10 ** 18; // $5 fixed fee
