@@ -14,8 +14,10 @@ export default function Navbar({ variant = 'home', currentPage }: NavbarProps) {
 
     const homeNavItems = [
         // { href: "/how-it-works", label: "How it Works" },
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/market", label: "Market" },
         { href: "/whitepaper", label: "Whitepaper" },
-        { href: "#markets", label: "Markets" },
+        { href: "/create-opportunity", label: "Create Opportunity" },
         { href: "#privacy", label: "Privacy" },
         { href: "#contact", label: "Contact" }
     ]
@@ -23,8 +25,10 @@ export default function Navbar({ variant = 'home', currentPage }: NavbarProps) {
     const technicalNavItems = [
         { href: "/", label: "Home" },
         // { href: "/how-it-works", label: "How It Works" },
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/market", label: "Market" },
         { href: "/whitepaper", label: "Whitepaper" },
-        { href: "#markets", label: "Markets" }
+        { href: "/create-opportunity", label: "Create Opportunity" }
     ]
 
     const navItems = variant === 'home' ? homeNavItems : technicalNavItems
