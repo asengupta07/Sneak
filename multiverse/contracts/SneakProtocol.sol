@@ -513,6 +513,278 @@ contract SneakProtocol is Ownable, ReentrancyGuard {
         return userTokens[_opportunityId][_side][_user];
     }
 
+    // Advanced chain health analysis functions
+    struct ChainHealthData {
+        uint256 chainId;
+        address owner;
+        uint256 totalPositions;
+        uint256 activePositions;
+        uint256 liquidatedPositions;
+        uint256 totalAllocated;
+        uint256 currentTotalValue;
+        uint256 totalDebt;
+        uint256 healthFactor; // In basis points (10000 = 100%)
+        bool isLiquidationRisk; // True if health factor < 120%
+        bool isHighRisk; // True if health factor < 150%
+        uint256 liquidationThreshold; // Value at which liquidation triggers
+    }
+
+    function getChainHealthData(
+        uint256 _chainId
+    ) external view returns (ChainHealthData memory) {
+        PositionChain memory chain = positionChains[_chainId];
+        require(chain.positions.length > 0, "Chain does not exist");
+
+        uint256 totalAllocated = 0;
+        uint256 currentTotalValue = 0;
+        uint256 activePositions = 0;
+        uint256 liquidatedPositions = 0;
+
+        for (uint256 i = 0; i < chain.positions.length; i++) {
+            Position memory pos = chain.positions[i];
+            totalAllocated += pos.amount;
+            currentTotalValue += getCurrentPositionValue(pos);
+
+            if (pos.active) {
+                activePositions++;
+            } else {
+                liquidatedPositions++;
+            }
+        }
+
+        uint256 healthFactor = chain.totalDebt > 0
+            ? (currentTotalValue * BASIS_POINTS) / chain.totalDebt
+            : BASIS_POINTS * 10; // Very healthy if no debt
+
+        uint256 liquidationThreshold = (chain.totalDebt *
+            (BASIS_POINTS + HYSTERESIS)) / BASIS_POINTS;
+
+        return
+            ChainHealthData({
+                chainId: _chainId,
+                owner: chain.owner,
+                totalPositions: chain.positions.length,
+                activePositions: activePositions,
+                liquidatedPositions: liquidatedPositions,
+                totalAllocated: totalAllocated,
+                currentTotalValue: currentTotalValue,
+                totalDebt: chain.totalDebt,
+                healthFactor: healthFactor,
+                isLiquidationRisk: healthFactor < 12000, // <120%
+                isHighRisk: healthFactor < 15000, // <150%
+                liquidationThreshold: liquidationThreshold
+            });
+    }
+
+    struct PositionRiskData {
+        uint256 positionIndex;
+        uint256 opportunityId;
+        bool side;
+        uint256 allocatedAmount;
+        uint256 currentValue;
+        uint256 pnl; // Profit/Loss vs allocated
+        bool isActive;
+        uint256 riskToNextPosition; // How much value loss until next position liquidates
+        bool isLiquidationTrigger; // Is this the position that would trigger liquidation?
+    }
+
+    function getChainRiskAnalysis(
+        uint256 _chainId
+    ) external view returns (PositionRiskData[] memory) {
+        PositionChain memory chain = positionChains[_chainId];
+        require(chain.positions.length > 0, "Chain does not exist");
+
+        PositionRiskData[] memory riskData = new PositionRiskData[](
+            chain.positions.length
+        );
+
+        for (uint256 i = 0; i < chain.positions.length; i++) {
+            Position memory pos = chain.positions[i];
+            uint256 currentValue = getCurrentPositionValue(pos);
+            uint256 pnl = currentValue > pos.amount
+                ? currentValue - pos.amount
+                : 0;
+
+            // Calculate risk to next position
+            uint256 riskToNext = 0;
+            bool isLiquidationTrigger = false;
+
+            if (i < chain.positions.length - 1) {
+                // This position collateralizes the next one
+                uint256 nextPositionDebt = chain.positions[i + 1].amount +
+                    FIXED_FEE;
+                uint256 requiredCollateral = (nextPositionDebt *
+                    (BASIS_POINTS + HYSTERESIS)) / BASIS_POINTS;
+
+                if (currentValue > requiredCollateral) {
+                    riskToNext = currentValue - requiredCollateral;
+                } else {
+                    isLiquidationTrigger = true;
+                }
+            }
+
+            riskData[i] = PositionRiskData({
+                positionIndex: i,
+                opportunityId: pos.opportunityId,
+                side: pos.side,
+                allocatedAmount: pos.amount,
+                currentValue: currentValue,
+                pnl: pnl,
+                isActive: pos.active,
+                riskToNextPosition: riskToNext,
+                isLiquidationTrigger: isLiquidationTrigger
+            });
+        }
+
+        return riskData;
+    }
+
+    struct OpportunityRiskData {
+        uint256 opportunityId;
+        string name;
+        uint256 priceYes;
+        uint256 priceNo;
+        uint256 priceDeviation; // How far from 0.5 equilibrium
+        uint256 liquidityImbalance; // Difference between YES/NO liquidity
+        uint256 volatilityRisk; // Based on price deviation
+        bool isHighRisk; // Price deviation > 30%
+        uint256 totalLiquidity;
+    }
+
+    function getOpportunityRiskData(
+        uint256 _opportunityId
+    ) external view returns (OpportunityRiskData memory) {
+        Opportunity memory opp = opportunities[_opportunityId];
+        require(opp.id != 0, "Opportunity does not exist");
+
+        uint256 maxPriceDeviation = opp.priceYes > opp.priceNo
+            ? opp.priceYes > INITIAL_PRICE
+                ? opp.priceYes - INITIAL_PRICE
+                : INITIAL_PRICE - opp.priceYes
+            : opp.priceNo > INITIAL_PRICE
+            ? opp.priceNo - INITIAL_PRICE
+            : INITIAL_PRICE - opp.priceNo;
+
+        uint256 liquidityImbalance = opp.liquidityYes > opp.liquidityNo
+            ? opp.liquidityYes - opp.liquidityNo
+            : opp.liquidityNo - opp.liquidityYes;
+
+        return
+            OpportunityRiskData({
+                opportunityId: _opportunityId,
+                name: opp.name,
+                priceYes: opp.priceYes,
+                priceNo: opp.priceNo,
+                priceDeviation: maxPriceDeviation,
+                liquidityImbalance: liquidityImbalance,
+                volatilityRisk: (maxPriceDeviation * 100) / INITIAL_PRICE, // Percentage deviation
+                isHighRisk: maxPriceDeviation > ((INITIAL_PRICE * 30) / 100), // >30% deviation
+                totalLiquidity: opp.liquidityYes + opp.liquidityNo
+            });
+    }
+
+    // Get all chains at risk of liquidation
+    function getChainsAtRisk() external view returns (uint256[] memory) {
+        uint256[] memory atRiskChains = new uint256[](nextChainId - 1);
+        uint256 riskCount = 0;
+
+        for (uint256 i = 1; i < nextChainId; i++) {
+            if (
+                positionChains[i].positions.length > 0 &&
+                !positionChains[i].liquidated
+            ) {
+                // Check if this chain has liquidation risk
+                uint256 totalValue = 0;
+                for (
+                    uint256 j = 0;
+                    j < positionChains[i].positions.length;
+                    j++
+                ) {
+                    totalValue += getCurrentPositionValue(
+                        positionChains[i].positions[j]
+                    );
+                }
+
+                uint256 healthFactor = positionChains[i].totalDebt > 0
+                    ? (totalValue * BASIS_POINTS) / positionChains[i].totalDebt
+                    : BASIS_POINTS * 10;
+
+                if (healthFactor < 12000) {
+                    // <120% health factor
+                    atRiskChains[riskCount] = i;
+                    riskCount++;
+                }
+            }
+        }
+
+        // Resize array to actual count
+        uint256[] memory result = new uint256[](riskCount);
+        for (uint256 i = 0; i < riskCount; i++) {
+            result[i] = atRiskChains[i];
+        }
+
+        return result;
+    }
+
+    // Get liquidation preview - what would happen if we liquidate this chain now
+    struct LiquidationPreview {
+        bool canLiquidate;
+        uint256 liquidationStartIndex; // First position to be liquidated
+        uint256 positionsToLiquidate; // Number of positions that would be liquidated
+        uint256 collateralShortfall; // How much collateral is missing
+        uint256 liquidationPenalty; // Penalty amount
+        uint256 remainingValue; // Value left after liquidation
+    }
+
+    function getLiquidationPreview(
+        uint256 _chainId
+    ) external view returns (LiquidationPreview memory) {
+        PositionChain memory chain = positionChains[_chainId];
+        require(chain.positions.length > 0, "Chain does not exist");
+
+        // Find first undercollateralized position
+        for (uint256 i = 1; i < chain.positions.length; i++) {
+            Position memory prevPosition = chain.positions[i - 1];
+            uint256 collateralValue = getCurrentPositionValue(prevPosition);
+            uint256 debt = (chain.positions[i].amount + FIXED_FEE);
+            uint256 threshold = (debt * (BASIS_POINTS - HYSTERESIS)) /
+                BASIS_POINTS;
+
+            if (collateralValue < threshold) {
+                uint256 positionsToLiquidate = chain.positions.length - i;
+                uint256 shortfall = threshold - collateralValue;
+                uint256 penalty = (shortfall * LIQUIDATION_PENALTY) /
+                    BASIS_POINTS;
+
+                return
+                    LiquidationPreview({
+                        canLiquidate: true,
+                        liquidationStartIndex: i,
+                        positionsToLiquidate: positionsToLiquidate,
+                        collateralShortfall: shortfall,
+                        liquidationPenalty: penalty,
+                        remainingValue: collateralValue
+                    });
+            }
+        }
+
+        // Chain is healthy
+        uint256 totalValue = 0;
+        for (uint256 i = 0; i < chain.positions.length; i++) {
+            totalValue += getCurrentPositionValue(chain.positions[i]);
+        }
+
+        return
+            LiquidationPreview({
+                canLiquidate: false,
+                liquidationStartIndex: 0,
+                positionsToLiquidate: 0,
+                collateralShortfall: 0,
+                liquidationPenalty: 0,
+                remainingValue: totalValue
+            });
+    }
+
     // Admin function to withdraw protocol fees
     function withdrawProtocolFees(address _token) external onlyOwner {
         uint256 amount = protocolFees[_token];
